@@ -58,7 +58,7 @@ function QuizFlow({ variant }: QuizFlowProps) {
   const currentScaleQuestion = variant === "scale" ? SCALE_QUESTIONS[flow.index] : null;
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-8 px-4 pt-8 pb-16 md:justify-center">
+    <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-8 px-4 pt-8 pb-16 md:justify-center-safe">
       {currentChoiceQuestion && (
         <ChoiceQuestion
           question={currentChoiceQuestion}
