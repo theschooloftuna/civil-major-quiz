@@ -241,7 +241,7 @@ page branches on that distinction to show the right message.
 - [x] Add `SUPABASE_SERVICE_ROLE_KEY` / `ANALYTICS_PASSCODE` to
       `.env.example` and `CLAUDE.md`; add `src/lib/supabase/admin-client.ts`.
 - [x] Add `src/lib/analytics/session.ts` + tests.
-- [ ] Add `src/lib/analytics/auth.ts` + `src/lib/analytics/actions.ts` +
+- [x] Add `src/lib/analytics/auth.ts` + `src/lib/analytics/actions.ts` +
       their tests (mocking `next/headers`).
 - [ ] Add `src/lib/supabase/analytics.ts` (`getAnalyticsRows`) + tests.
 - [ ] Add `src/lib/analytics/stats.ts` (summary/distribution/trend/paginate)
