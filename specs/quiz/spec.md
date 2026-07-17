@@ -77,10 +77,13 @@ optionally leave their email to get updates from the site owner.
 - [ ] Given a user completes all 7 questions on `/quiz/scale` (Likert) and
       submits, then results are computed and displayed the same way as the
       multiple-choice variant.
-- [ ] Given each major's match percentage is `(raw weighted score ÷ that
-      major's max possible score) × 100`, when results are computed, then
-      each of the 7 majors has an independent percentage (percentages do not
-      need to sum to 100).
+- [ ] Given the displayed top matches (top 3, or more if tied), when results
+      are computed, then each shown major's percentage is its share of the
+      total raw score across just the shown majors (`raw ÷ sum of shown
+      majors' raw scores × 100`), so the displayed percentages always sum to
+      100. (Revised during polish — see `plan.md`. Each major's independent
+      `raw ÷ its own max` percentage is still computed internally and used
+      to rank/select which majors are "top," it's just not what's shown.)
 - [ ] Given two or more majors are tied at the cutoff for the 3rd result slot,
       when results are shown, then all tied majors are included (the
       displayed list may be longer than 3).

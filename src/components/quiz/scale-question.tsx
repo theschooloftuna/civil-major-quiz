@@ -8,13 +8,24 @@ const SCALE_VALUES = [1, 2, 3, 4, 5] as const;
 
 interface ScaleQuestionProps {
   question: ScaleQuestionData;
+  questionNumber: number;
+  totalQuestions: number;
   selectedValue?: number;
   onSelect: (value: number) => void;
 }
 
-function ScaleQuestion({ question, selectedValue, onSelect }: ScaleQuestionProps) {
+function ScaleQuestion({
+  question,
+  questionNumber,
+  totalQuestions,
+  selectedValue,
+  onSelect,
+}: ScaleQuestionProps) {
   return (
     <fieldset className="flex w-full flex-col">
+      <p className="mb-3 font-mono text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        Question {questionNumber} of {totalQuestions}
+      </p>
       <legend className="mb-8 text-[40px] leading-[52px] font-normal text-foreground">
         {question.statement}
       </legend>

@@ -303,7 +303,15 @@ results view never shows a blocking/error state.
 - [x] `src/lib/majors.ts` + `src/lib/quiz-topics.ts` (content, no logic yet)
 - [x] `src/lib/quiz-data-choice.ts` + `src/lib/quiz-data-scale.ts` + test
       asserting matching `topicId`s across variants
-- [x] `src/lib/scoring.ts` (`computeResults`, `getTopMajors`) + unit tests
+- [x] `src/lib/scoring.ts` (`computeResults`, `getTopMajors`) + unit tests.
+      **Revised post-implementation:** added `normalizeToDisplayPercentage`,
+      applied to `getTopMajors`'s output before display/save. Originally
+      this plan chose "each major's independent raw÷max%" over "normalize
+      the shown top matches to sum to 100%" — on reflection the normalized
+      version reads better (clean numbers that sum to 100, rather than e.g.
+      three majors all near 100% independently) and was the original
+      recommendation. Selection/ranking still uses the independent
+      percentage; only the displayed/saved number changed. See spec.md.
 - [x] Add `@supabase/supabase-js`; `src/lib/supabase/client.ts`
 - [x] `supabase/migrations/0001_quiz_results.sql`; `.env.example`
 - [x] `src/lib/supabase/quiz-results.ts` (`saveQuizResult`,

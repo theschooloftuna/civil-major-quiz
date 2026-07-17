@@ -6,13 +6,24 @@ import type { ChoiceQuestion as ChoiceQuestionData } from "@/lib/quiz-data-choic
 
 interface ChoiceQuestionProps {
   question: ChoiceQuestionData;
+  questionNumber: number;
+  totalQuestions: number;
   selectedOptionId?: string;
   onSelect: (optionId: string) => void;
 }
 
-function ChoiceQuestion({ question, selectedOptionId, onSelect }: ChoiceQuestionProps) {
+function ChoiceQuestion({
+  question,
+  questionNumber,
+  totalQuestions,
+  selectedOptionId,
+  onSelect,
+}: ChoiceQuestionProps) {
   return (
     <fieldset className="flex w-full flex-col">
+      <p className="mb-3 font-mono text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        Question {questionNumber} of {totalQuestions}
+      </p>
       <legend className="mb-8 text-[40px] leading-[52px] font-normal text-foreground">
         {question.prompt}
       </legend>

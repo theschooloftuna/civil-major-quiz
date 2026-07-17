@@ -6,6 +6,7 @@ import { SCALE_QUESTIONS } from "./quiz-data-scale";
 import {
   computeResults,
   getTopMajors,
+  normalizeToDisplayPercentage,
   scoreChoiceAnswers,
   scoreScaleAnswers,
   type MajorScore,
@@ -79,6 +80,58 @@ describe("getTopMajors", () => {
   test("returns everything when there are fewer results than n", () => {
     const results: MajorScore[] = [score("structural", 90, 100), score("geotechnical", 80, 100)];
     expect(getTopMajors(results, 3)).toHaveLength(2);
+  });
+});
+
+describe("normalizeToDisplayPercentage", () => {
+  test("rescales raw scores so percentages sum to 100", () => {
+    const results: MajorScore[] = [
+      score("structural", 30, 100),
+      score("geotechnical", 20, 100),
+      score("transportation", 10, 100),
+    ];
+    const normalized = normalizeToDisplayPercentage(results);
+
+    expect(normalized.reduce((sum, r) => sum + r.percentage, 0)).toBeCloseTo(100);
+    expect(normalized.find((r) => r.majorId === "structural")!.percentage).toBeCloseTo(50);
+    expect(normalized.find((r) => r.majorId === "geotechnical")!.percentage).toBeCloseTo(33.333, 2);
+    expect(normalized.find((r) => r.majorId === "transportation")!.percentage).toBeCloseTo(16.667, 2);
+  });
+
+  test("normalizes whatever set is passed in, including ties beyond 3", () => {
+    const results: MajorScore[] = [
+      score("structural", 10, 100),
+      score("geotechnical", 10, 100),
+      score("transportation", 10, 100),
+      score("environmental", 10, 100),
+    ];
+    const normalized = normalizeToDisplayPercentage(results);
+
+    expect(normalized).toHaveLength(4);
+    for (const result of normalized) {
+      expect(result.percentage).toBeCloseTo(25);
+    }
+  });
+
+  test("splits evenly instead of dividing by zero when every raw score is 0", () => {
+    const results: MajorScore[] = [
+      score("structural", 0, 100),
+      score("geotechnical", 0, 100),
+      score("transportation", 0, 100),
+    ];
+    const normalized = normalizeToDisplayPercentage(results);
+
+    for (const result of normalized) {
+      expect(result.percentage).toBeCloseTo(33.333, 2);
+    }
+  });
+
+  test("leaves raw and max untouched, only rewrites percentage", () => {
+    const results: MajorScore[] = [score("structural", 30, 100), score("geotechnical", 10, 100)];
+    const normalized = normalizeToDisplayPercentage(results);
+
+    expect(normalized[0]).toMatchObject({ majorId: "structural", raw: 30, max: 100 });
+    expect(normalized[1]).toMatchObject({ majorId: "geotechnical", raw: 10, max: 100 });
   });
 });
 

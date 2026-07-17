@@ -24,9 +24,9 @@ const buttonVariants = cva(
         link: "border-transparent text-green underline-offset-4 shadow-none hover:underline active:translate-x-0 active:translate-y-0",
       },
       size: {
-        sm: "h-10 px-5 text-sm shadow-hard-sm active:translate-x-px active:translate-y-px [&_svg]:size-4",
-        default: "h-14 px-8 text-base [&_svg]:size-5",
-        lg: "h-14 px-8 text-base [&_svg]:size-5",
+        sm: "h-10 pl-5 pr-5 text-sm shadow-hard-sm active:translate-x-px active:translate-y-px [&_svg]:size-4",
+        default: "h-14 pl-7 pr-8 text-base [&_svg]:size-6",
+        lg: "h-14 pl-7 pr-8 text-base [&_svg]:size-6",
         icon: "size-12 [&_svg]:size-5",
         "icon-sm": "size-10 shadow-hard-sm active:translate-x-px active:translate-y-px [&_svg]:size-4",
         "icon-lg": "size-14 [&_svg]:size-5",
