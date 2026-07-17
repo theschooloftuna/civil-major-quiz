@@ -249,7 +249,7 @@ page branches on that distinction to show the right message.
       before touching UI.
 - [x] `pnpm dlx shadcn add table card chart`; add
       `theme-custom/{table,card,chart}.tsx` wrappers.
-- [ ] Add `analytics/login-form.tsx` + `analytics/logout-button.tsx` +
+- [x] Add `analytics/login-form.tsx` + `analytics/logout-button.tsx` +
       `analytics/config-error.tsx`.
 - [ ] Add `analytics/stat-tile.tsx`, `analytics/major-distribution-chart.tsx`,
       `analytics/trend-chart.tsx`, `analytics/participants-table.tsx`.
