@@ -35,8 +35,18 @@ export default async function AnalyticsPage({ searchParams }: AnalyticsPageProps
 
   const rows = await getAnalyticsRows();
 
+  // The logout control lives here, outside the rows === null branch below,
+  // so a valid session that hits a config error still has a way out other
+  // than waiting for the cookie to expire.
   if (rows === null) {
-    return <ConfigError />;
+    return (
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-12">
+        <div className="flex items-center justify-end">
+          <LogoutButton />
+        </div>
+        <ConfigError />
+      </div>
+    );
   }
 
   const { page: pageParam } = await searchParams;

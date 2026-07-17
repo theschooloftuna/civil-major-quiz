@@ -67,6 +67,9 @@ describe("AnalyticsPage", () => {
 
     expect(screen.getByText(/analytics unavailable/i)).toBeInTheDocument();
     expect(screen.getByText(/SUPABASE_SERVICE_ROLE_KEY/)).toBeInTheDocument();
+    // A valid session with a config error still needs a way out other than
+    // waiting for the cookie to expire.
+    expect(screen.getByRole("button", { name: /log out/i })).toBeInTheDocument();
   });
 
   test("renders zeroed-out stats and an empty table for zero participants", async () => {
@@ -106,6 +109,8 @@ describe("AnalyticsPage", () => {
 
     const optInCard = screen.getByText("Email opt-in").closest('[data-slot="card"]');
     expect(within(optInCard as HTMLElement).getByText("1")).toBeInTheDocument();
+
+    expect(screen.getByRole("button", { name: /log out/i })).toBeInTheDocument();
 
     // All 7 majors present in the distribution chart (some names also
     // appear again in the participant table's "Top major" column).
