@@ -251,7 +251,7 @@ page branches on that distinction to show the right message.
       `theme-custom/{table,card,chart}.tsx` wrappers.
 - [x] Add `analytics/login-form.tsx` + `analytics/logout-button.tsx` +
       `analytics/config-error.tsx`.
-- [ ] Add `analytics/stat-tile.tsx`, `analytics/major-distribution-chart.tsx`,
+- [x] Add `analytics/stat-tile.tsx`, `analytics/major-distribution-chart.tsx`,
       `analytics/trend-chart.tsx`, `analytics/participants-table.tsx`.
 - [ ] Add `src/app/analytics/page.tsx` wiring gate → fetch → dashboard;
       add `page.test.tsx` covering all four render states.
