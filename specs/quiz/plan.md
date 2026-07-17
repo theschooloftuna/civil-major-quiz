@@ -322,7 +322,7 @@ results view never shows a blocking/error state.
 - [x] `src/components/quiz/progress-bar.tsx`
 - [x] `src/components/quiz/choice-question.tsx` +
       `src/components/quiz/scale-question.tsx`
-- [ ] `src/components/quiz/quiz-flow.tsx` wiring hook + question renderers
+- [x] `src/components/quiz/quiz-flow.tsx` wiring hook + question renderers
       + progress bar + Prev/Next/Submit
 - [x] `src/components/quiz/results-list.tsx` (built before `quiz-flow.tsx`
       instead of after, since quiz-flow needs to render it — the plan listed
