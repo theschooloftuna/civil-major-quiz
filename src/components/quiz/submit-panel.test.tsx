@@ -65,7 +65,7 @@ describe("SubmitPanel", () => {
     const user = userEvent.setup();
     render(<SubmitPanel {...baseProps} onRetake={vi.fn()} />);
 
-    await user.type(screen.getByLabelText(/get updates/i), "not-an-email");
+    await user.type(screen.getByLabelText(/email/i), "not-an-email");
     await user.click(screen.getByRole("button", { name: /^subscribe$/i }));
 
     expect(await screen.findByText(/enter a valid email/i)).toBeInTheDocument();
@@ -78,7 +78,7 @@ describe("SubmitPanel", () => {
     const user = userEvent.setup();
     render(<SubmitPanel {...baseProps} onRetake={vi.fn()} />);
 
-    await user.type(screen.getByLabelText(/get updates/i), "student@example.com");
+    await user.type(screen.getByLabelText(/email/i), "student@example.com");
     await user.click(screen.getByRole("button", { name: /^subscribe$/i }));
 
     expect(subscribeToUpdatesMock).toHaveBeenCalledWith(baseProps.resultId, "student@example.com");

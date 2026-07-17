@@ -78,7 +78,7 @@ function SubmitPanel({ resultId, variant, answers, scores, topMajors, onRetake }
   }
 
   return (
-    <div className="flex w-full flex-col gap-6 border-t border-moss pt-6">
+    <div className="flex w-full flex-col gap-12 border-t border-moss pt-6">
       <div className="flex flex-wrap gap-4">
         <Button type="button" size="lg" onClick={onRetake}>
           Retake quiz
@@ -99,31 +99,45 @@ function SubmitPanel({ resultId, variant, answers, scores, topMajors, onRetake }
       </div>
 
       {subscribeState === "subscribed" ? (
-        <Alert variant="success" className="max-w-md">
+        <Alert variant="success" className="max-w-2xl">
           <AlertDescription>You&apos;re subscribed for updates.</AlertDescription>
         </Alert>
       ) : (
-        <Field className="max-w-md">
-          <FieldLabel htmlFor="subscribe-email">Get updates about civil-major-quiz</FieldLabel>
-          <div className="flex flex-wrap gap-3">
-            <Input
-              id="subscribe-email"
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                setEmailError(null);
-              }}
-              className="max-w-xs"
-            />
-            <Button type="button" size="default" disabled={subscribeState === "sending"} onClick={handleSubscribe}>
-              {subscribeState === "sending" ? "Subscribing…" : "Subscribe"}
-            </Button>
-          </div>
-          {emailError && <FieldError>{emailError}</FieldError>}
-          {subscribeState === "error" && <FieldError>Couldn&apos;t subscribe right now. Try again.</FieldError>}
-        </Field>
+        <div className="flex flex-col gap-4">
+          <Alert variant="notice">
+            <AlertDescription>
+              If you are interested about my 60 days civil engineering basics rebuilding, book
+              and software recommendations and research papers subscribe with your email.
+            </AlertDescription>
+          </Alert>
+          <Field>
+            {/*<FieldLabel htmlFor="subscribe-email">Email</FieldLabel>*/}
+            <div className="flex flex-wrap gap-3">
+              <Input
+                id="subscribe-email"
+                type="email"
+                aria-label="Email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setEmailError(null);
+                }}
+                className="max-w-xs"
+              />
+              <Button
+                type="button"
+                size="default"
+                disabled={subscribeState === "sending"}
+                onClick={handleSubscribe}
+              >
+                {subscribeState === "sending" ? "Subscribing…" : "Subscribe"}
+              </Button>
+            </div>
+            {emailError && <FieldError>{emailError}</FieldError>}
+            {subscribeState === "error" && <FieldError>Couldn&apos;t subscribe right now. Try again.</FieldError>}
+          </Field>
+        </div>
       )}
     </div>
   );
