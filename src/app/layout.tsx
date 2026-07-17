@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { Manrope, IBM_Plex_Mono } from "next/font/google";
+
+import { Toaster } from "@/components/theme-custom/toaster";
+
 import "./globals.css";
 
 const manrope = Manrope({
@@ -29,7 +32,10 @@ export default function RootLayout({
       lang="en"
       className={`${manrope.variable} ${ibmPlexMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <Toaster />
+      </body>
     </html>
   );
 }
