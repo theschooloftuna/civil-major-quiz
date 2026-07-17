@@ -26,22 +26,47 @@ percentage.
 - Package manager: pnpm
 
 ## Design system
-Visual style is modeled on [phosphoricons.com](https://phosphoricons.com):
-warm paper background, grass-green primary, hard-edged flat shadows. Tokens
-live in `src/app/globals.css` (`:root`), fonts are wired in `src/app/layout.tsx`.
-- Palette: warm off-white background (`--background` / "ghost"), near-black
-  ink foreground (`--foreground` / "stone"), grass-green primary (`--primary`
-  `#1fa647`), acid-lime accent (`--accent` `#c4e456`) for highlights/hover.
-  Chart colors cycle through green/acid/blue/orange/purple.
+Visual style is modeled on [phosphoricons.com](https://phosphoricons.com)'s
+actual production CSS (scraped/inspected, not approximated): warm paper
+background, moss ink, acid-lime primary, hard-edged flat shadows, large
+buttons/inputs/text. Tokens live in `src/app/globals.css` (`:root` +
+`@theme inline`), fonts are wired in `src/app/layout.tsx`.
+
+**Golden rule: never edit `src/components/ui/*` directly.** Those are
+untouched shadcn-generated primitives (`pnpm dlx shadcn add <name>` to add
+more). This project's actual styled components live in
+`src/components/theme-custom/` — `button.tsx`, `input.tsx`, `field.tsx`,
+`alert.tsx`, `toaster.tsx`, `doodles.tsx` — built on top of the `ui/`
+primitives (or the same headless `@base-ui/react` primitives they use), not
+by hand-editing them. Real pages/components import from `theme-custom/`,
+never straight from `ui/`.
+
+- Palette: warm off-white background (`--background` / "ghost"), moss ink
+  foreground (`--foreground` / "moss", `#3c402b` — not the near-black
+  "stone" used in an earlier pass), acid-lime primary (`--primary`, now
+  `#c4e456`, with `--primary-foreground` set to moss since acid is too
+  light for light text). The literal palette (moss, ghost, vellum, foam,
+  lichen, acid, olive, green `#1fa647`, darkgreen, deepgreen, stone, pewter)
+  is also registered as plain Tailwind color utilities (`bg-moss`,
+  `text-green`, `border-vellum`, ...) alongside the semantic tokens — use
+  the literal ones directly where a semantic token would fight the acid
+  primary on legibility (e.g. text sitting on the light page background
+  wants `text-green`, not `text-primary`).
 - Typography: Manrope (`font-sans`) for body/UI text, IBM Plex Mono
-  (`font-mono`) for labels/tags — matches the reference site's uppercase
-  monospace labels.
-- Shape/shadow language is flat and hard-edged, not soft-shadow Material
-  style: crisp 1-2px borders (often `border-foreground`), offset hard shadows
-  with no blur (`shadow-hard-sm` / `shadow-hard` / `shadow-hard-lg` utilities
-  defined in `globals.css`), mostly sharp-to-small corner radii
-  (`--radius: 0.5rem` base). Interactive elements (see `Button`) shed their
-  shadow and translate into it on `:active` for a tactile "pressed" feel.
+  (`font-mono`) for labels/tags. Headings/body text run large — landing
+  heading is 40px/52px `font-normal`, question prompts ~28px, body copy
+  `text-lg`, buttons/inputs default to 48px tall (56px for `size="lg"`).
+- Shape/shadow language is flat and hard-edged: crisp 1px `border-moss`,
+  offset hard shadows with translucent moss (`--moss-shadow: rgba(60, 64,
+  43, 0.2)`, not solid ink) via `shadow-hard-sm` / `shadow-hard` /
+  `shadow-hard-lg` utilities, `--radius: 0.5rem` corners. Interactive
+  elements shed their shadow and translate into it on `:active`.
+- `theme-custom/alert.tsx` (acid-green "notice"/"success" banners) and
+  `theme-custom/toaster.tsx` (sonner-based, mounted once in
+  `src/app/layout.tsx`) exist for the same reason: variety beyond
+  identical-looking cards everywhere, plus the reference's callout-box
+  pattern. `theme-custom/doodles.tsx` has a few original (not copied)
+  line-art SVGs for breaking up empty space on the landing page.
 - Light mode only for now — no dark mode/theme toggle is implemented.
 
 ## Commands
