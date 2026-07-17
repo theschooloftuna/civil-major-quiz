@@ -7,9 +7,13 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-manrope), -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, Helvetica Neue, sans-serif;
+  --font-mono: var(--font-ibm-plex-mono), "Courier New", monospace;
   --font-heading: var(--font-sans);
+  --shadow-hard-sm: 1px 1px 0 0 var(--foreground);
+  --shadow-hard: 2px 2px 0 0 var(--foreground);
+  --shadow-hard-lg: 3px 3px 0 0 var(--foreground);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -49,72 +53,39 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.841 0.238 128.85);
-  --primary-foreground: oklch(0.405 0.101 131.063);
-  --secondary: oklch(0.967 0.001 286.375);
-  --secondary-foreground: oklch(0.21 0.006 285.885);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.897 0.196 126.665);
-  --chart-2: oklch(0.768 0.233 130.85);
-  --chart-3: oklch(0.648 0.2 131.684);
-  --chart-4: oklch(0.532 0.157 131.589);
-  --chart-5: oklch(0.453 0.124 130.933);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.648 0.2 131.684);
-  --sidebar-primary-foreground: oklch(0.986 0.031 120.757);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
-
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.768 0.233 130.85);
-  --primary-foreground: oklch(0.405 0.101 131.063);
-  --secondary: oklch(0.274 0.006 286.033);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.897 0.196 126.665);
-  --chart-2: oklch(0.768 0.233 130.85);
-  --chart-3: oklch(0.648 0.2 131.684);
-  --chart-4: oklch(0.532 0.157 131.589);
-  --chart-5: oklch(0.453 0.124 130.933);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.768 0.233 130.85);
-  --sidebar-primary-foreground: oklch(0.274 0.072 132.109);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* Phosphor Icons (phosphoricons.com) palette — warm paper + grass green */
+  --background: #f7f5f1; /* ghost */
+  --foreground: #343330; /* stone */
+  --card: #e9ebe2; /* foam */
+  --card-foreground: #343330; /* stone */
+  --popover: #f7f5f1; /* ghost */
+  --popover-foreground: #343330; /* stone */
+  --primary: #1fa647; /* green */
+  --primary-foreground: #f7f5f1; /* ghost */
+  --secondary: #d2d6c5; /* lichen */
+  --secondary-foreground: #3c402b; /* moss */
+  --muted: #e9ebe2; /* foam */
+  --muted-foreground: #656461; /* dark-grey */
+  --accent: #c4e456; /* acid */
+  --accent-foreground: #1f2310; /* deepgreen */
+  --destructive: #e8612b; /* red */
+  --border: #343330; /* stone */
+  --input: #c9c5bf; /* pewter */
+  --ring: #1fa647; /* green */
+  --chart-1: #1fa647; /* green */
+  --chart-2: #c4e456; /* acid */
+  --chart-3: #1f7fea; /* blue */
+  --chart-4: #ff8e51; /* orange */
+  --chart-5: #925bff; /* purple */
+  --radius: 0.5rem;
+  --sidebar: #e9ebe2; /* foam */
+  --sidebar-foreground: #343330; /* stone */
+  --sidebar-primary: #1fa647; /* green */
+  --sidebar-primary-foreground: #f7f5f1; /* ghost */
+  --sidebar-accent: #c4e456; /* acid */
+  --sidebar-accent-foreground: #1f2310; /* deepgreen */
+  --sidebar-border: #343330; /* stone */
+  --sidebar-ring: #1fa647; /* green */
 }
 
 @layer base {

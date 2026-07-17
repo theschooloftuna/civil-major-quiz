@@ -17,9 +17,31 @@ recommends which civil engineering major/specialization suits them best out of
   before writing framework-facing code (routing, data fetching, config).
 - Styling: Tailwind CSS v4 + shadcn/ui (`components.json`: style `base-nova`,
   base color `neutral`) built on `@base-ui/react` primitives
-- Icons: `@hugeicons/react`
+- Icons: `@phosphor-icons/react` — in Server Components (the default here),
+  import from `@phosphor-icons/react/ssr`, not the root package, or the icon
+  will crash (it relies on React Context that isn't available in RSC/SSR).
+  Only Client Components (`"use client"`) can import from the root package.
 - Testing: Vitest + React Testing Library (jsdom environment)
 - Package manager: pnpm
+
+## Design system
+Visual style is modeled on [phosphoricons.com](https://phosphoricons.com):
+warm paper background, grass-green primary, hard-edged flat shadows. Tokens
+live in `src/app/globals.css` (`:root`), fonts are wired in `src/app/layout.tsx`.
+- Palette: warm off-white background (`--background` / "ghost"), near-black
+  ink foreground (`--foreground` / "stone"), grass-green primary (`--primary`
+  `#1fa647`), acid-lime accent (`--accent` `#c4e456`) for highlights/hover.
+  Chart colors cycle through green/acid/blue/orange/purple.
+- Typography: Manrope (`font-sans`) for body/UI text, IBM Plex Mono
+  (`font-mono`) for labels/tags — matches the reference site's uppercase
+  monospace labels.
+- Shape/shadow language is flat and hard-edged, not soft-shadow Material
+  style: crisp 1-2px borders (often `border-foreground`), offset hard shadows
+  with no blur (`shadow-hard-sm` / `shadow-hard` / `shadow-hard-lg` utilities
+  defined in `globals.css`), mostly sharp-to-small corner radii
+  (`--radius: 0.5rem` base). Interactive elements (see `Button`) shed their
+  shadow and translate into it on `:active` for a tactile "pressed" feel.
+- Light mode only for now — no dark mode/theme toggle is implemented.
 
 ## Commands
 > The SDD loop relies on these being correct — Implement and Verify run them.
