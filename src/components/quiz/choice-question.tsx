@@ -19,15 +19,17 @@ function ChoiceQuestion({
   selectedOptionId,
   onSelect,
 }: ChoiceQuestionProps) {
+  const headingId = `${question.id}-prompt`;
+
   return (
-    <fieldset className="flex w-full flex-col">
+    <div className="flex w-full flex-col">
       <p className="mb-3 font-mono text-xs font-semibold uppercase tracking-wide text-muted-foreground">
         Question {questionNumber} of {totalQuestions}
       </p>
-      <legend className="mb-8 text-[40px] leading-[52px] font-normal text-foreground">
+      <h2 id={headingId} className="mb-8 text-[40px] leading-[52px] font-normal text-foreground">
         {question.prompt}
-      </legend>
-      <div className="flex flex-col gap-4">
+      </h2>
+      <div role="group" aria-labelledby={headingId} className="flex flex-col gap-4">
         {question.options.map((option) => {
           const selected = option.id === selectedOptionId;
           return (
@@ -46,7 +48,7 @@ function ChoiceQuestion({
           );
         })}
       </div>
-    </fieldset>
+    </div>
   );
 }
 

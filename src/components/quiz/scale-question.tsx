@@ -21,15 +21,17 @@ function ScaleQuestion({
   selectedValue,
   onSelect,
 }: ScaleQuestionProps) {
+  const headingId = `${question.id}-prompt`;
+
   return (
-    <fieldset className="flex w-full flex-col">
+    <div className="flex w-full flex-col">
       <p className="mb-3 font-mono text-xs font-semibold uppercase tracking-wide text-muted-foreground">
         Question {questionNumber} of {totalQuestions}
       </p>
-      <legend className="mb-8 text-[40px] leading-[52px] font-normal text-foreground">
+      <h2 id={headingId} className="mb-8 text-[40px] leading-[52px] font-normal text-foreground">
         {question.statement}
-      </legend>
-      <div className="flex flex-col gap-3">
+      </h2>
+      <div role="group" aria-labelledby={headingId} className="flex flex-col gap-3">
         <div className="flex w-full items-center justify-between gap-3">
           {SCALE_VALUES.map((value) => {
             const selected = value === selectedValue;
@@ -55,7 +57,7 @@ function ScaleQuestion({
           <span>Strongly agree</span>
         </div>
       </div>
-    </fieldset>
+    </div>
   );
 }
 
