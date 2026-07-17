@@ -80,10 +80,27 @@ result from local state immediately, then fires the Server Action in a
 background `useEffect`/transition. If it fails, it retries a few times with
 a short backoff; if it never succeeds, the "Copy link" affordance simply
 shows a small "link isn't ready" state instead of a link — the
-recommendation itself is never blocked or hidden. (Flagging this UX default
-now — it's not spelled out in the spec beyond "don't block the UI" — happy
-to adjust before Implement if you want different treatment of the pending
-state.)
+recommendation itself is never blocked or hidden.
+
+**REVISED during Implement — email is a separate action, not bundled into
+the save.** The original plan had `saveQuizResult` accept an optional
+`email` and fire once, automatically, right after results appear. That
+doesn't work: the email opt-in form is on the same screen, and the user
+needs time to type into it — an immediate auto-save would almost always go
+out before they could. Fixing this by making the two saves independent,
+per your direction when I flagged it:
+- `saveQuizResult(id, variant, answers, scores, topMajors)` — **no email
+  param anymore.** Fires automatically on mount, retried in the background
+  exactly as before. This is what makes `/result/<id>` exist.
+- `subscribeToUpdates(id, email)` — **new** Server Action, called only when
+  the user clicks a "Subscribe" button next to the email field on the
+  results screen. Performs an `UPDATE ... SET email = $1 WHERE id = $2`
+  against the already-saved row.
+- This needs one new piece of the SQL contract beyond what was originally
+  approved: a narrowly-scoped anonymous UPDATE (see Contract section below)
+  — `anon` can set `email` on a row exactly once, only while it's still
+  null, and is granted UPDATE on the `email` column specifically, not the
+  whole row.
 
 **Alternative considered and rejected:** letting the browser talk to
 Supabase directly with a `NEXT_PUBLIC_` anon key (the typical Supabase
@@ -109,9 +126,13 @@ to reason about and matches "Server Components by default."
   `getTopMajors(results, n)` (tie-inclusive). Pure functions.
 - `src/lib/supabase/client.ts` — new; server-only Supabase client factory
   reading `SUPABASE_URL` / `SUPABASE_ANON_KEY` from `process.env`.
-- `src/lib/supabase/quiz-results.ts` — new; `'use server'` module with
-  `saveQuizResult(input)` (insert) and `getQuizResultById(id)` (reads the
-  public view, returns a type with no `email` field at all).
+- `src/lib/supabase/quiz-results.ts` — new; plain server-only module with
+  `getQuizResultById(id)` (reads the public view, returns a type with no
+  `email` field at all).
+- `src/lib/supabase/actions.ts` — new; `'use server'` module with
+  `saveQuizResult(input)` (insert, no email) and `subscribeToUpdates(id,
+  email)` (the one and only place `email` gets written, via a scoped
+  UPDATE).
 
 **Hooks:**
 - `src/hooks/use-quiz-flow.ts` — new; current index, answers map,
@@ -194,12 +215,43 @@ create view public.quiz_results_public as
 grant select on public.quiz_results_public to anon;
 ```
 
-The `saveQuizResult` Server Action's return shape:
-`{ id: string, saved: boolean }` — `saved: false` means the local result is
-still valid, just not (yet) shareable. `getQuizResultById`'s return type has
-no `email` key at all (not `email?: undefined` — the field doesn't exist in
-the type or the query), so leaking it would be a type error, not just a
-runtime oversight.
+**REVISED during Implement — added migration `0002_quiz_results_email_subscribe.sql`:**
+
+```sql
+-- Lets a completed result be updated with an opt-in email afterward, via
+-- the separate "Subscribe for updates" action on the results screen.
+-- Scoped narrowly: anon can only ever set email once (from null), never
+-- overwrite or clear it, and can only touch the email column.
+
+create policy "anon can set email once, only while it is still null"
+  on public.quiz_results for update
+  to anon
+  using (email is null)
+  with check (email is not null);
+
+grant update (email) on public.quiz_results to anon;
+```
+
+The `USING` clause controls which rows are even reachable for update
+(only ones with `email is null`); `WITH CHECK` validates the row *after* the
+update (must end up non-null). Together they make "set once, never
+overwrite" a database-level guarantee, not just an application check. The
+column-scoped `grant update (email) ...` means even a crafted request can't
+touch `variant`, `answers`, `scores`, or `top_majors` via this policy.
+
+`saveQuizResult`'s return shape: `{ id: string, saved: boolean }` — `saved:
+false` means the local result is still valid, just not (yet) shareable. No
+`email` field anywhere in its input or output anymore.
+
+`subscribeToUpdates`'s return shape: `{ saved: boolean }` — `false` covers
+both a network/query failure and the "email was already set" case (RLS
+silently matches zero rows rather than erroring, so from the caller's
+perspective both look like "didn't take effect"); the UI doesn't need to
+distinguish them, it just doesn't show a success state.
+
+`getQuizResultById`'s return type has no `email` key at all (not `email?:
+undefined` — the field doesn't exist in the type or the query), so leaking
+it would be a type error, not just a runtime oversight.
 
 **External dependency I can't provision:** this requires a real Supabase
 project. You'll need to create one, run the migration above (SQL editor or
@@ -221,11 +273,16 @@ first.
   progress bar fill matches answered-count/7; full `/quiz` and
   `/quiz/scale` walkthroughs reach a results view (covers the two
   "completes all 7 questions" ACs).
-- **`submit-panel.tsx` (component, RTL):** unchecked/empty email → no email
-  in the save payload; checked + malformed email → inline error, save
-  blocked; checked + valid email → included in payload.
-- **`saveQuizResult` (unit, Supabase client mocked):** payload shape;
-  email inclusion rule enforced server-side too, not just client-side.
+- **`submit-panel.tsx` (component, RTL):** base save fires on mount with no
+  email involved; Subscribe stays disabled/no-ops until the email is
+  validly formatted; clicking Subscribe with a valid email calls
+  `subscribeToUpdates` with that email; malformed email blocks Subscribe
+  with an inline error and never touches the base save.
+- **`saveQuizResult` (unit, Supabase client mocked):** payload shape, no
+  `email` field ever sent.
+- **`subscribeToUpdates` (unit, Supabase client mocked):** malformed email
+  rejected before any query runs (server-side re-validation, not just
+  trusting the client); valid email sent as a scoped `.update()` call.
 - **`getQuizResultById` (unit, Supabase client mocked):** returned object
   has no `email` property under any circumstance — this is the test that
   actually backs the "email never reaches the browser" AC.
@@ -271,8 +328,14 @@ results view never shows a blocking/error state.
       instead of after, since quiz-flow needs to render it — the plan listed
       them in an order that had quiz-flow depending on a file that didn't
       exist yet; same deliverables, just resequenced)
-- [ ] `src/components/quiz/submit-panel.tsx` (email opt-in, retake, copy
-      link, background save + retry)
+- [ ] `src/components/quiz/submit-panel.tsx` (retake, copy link, background
+      base save + retry on mount) + separate Subscribe email field/button
+      wired to the new `subscribeToUpdates` action; also revisit
+      `src/lib/supabase/actions.ts` to drop `email` from `saveQuizResult`
+      and add `subscribeToUpdates`; add migration
+      `0002_quiz_results_email_subscribe.sql` (scoped anon UPDATE) — see
+      Approach/Contract sections above for why this changed from the
+      original single-save design
 - [ ] `src/app/quiz/page.tsx` + `src/app/quiz/scale/page.tsx`
 - [ ] `src/app/result/[id]/page.tsx` + `not-found.tsx`
 - [ ] Rewrite `src/app/page.tsx` landing page

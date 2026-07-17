@@ -22,11 +22,16 @@ and analyze aggregate answers over time.
 - Results show the top 3 matching majors (name, match %, short description,
   example careers), with ties at the boundary shown in full (list may exceed
   3 entries).
-- Every completed result is saved to Supabase (anonymous by default, with an
-  optional opt-in email) so that:
+- Every completed result is saved to Supabase anonymously as soon as it's
+  computed (no email involved in this save) so that:
   - the result gets a shareable, revisitable permalink at `/result/<id>`,
   - the site owner can later query stored answers/results for aggregate
     analysis (e.g. most common major).
+- On the results screen, a separate "Subscribe for updates" email field +
+  button lets the user attach their email to their *already-saved* result
+  afterward, as an explicit, independent second action — not bundled into
+  the initial save. (Revised from an earlier checkbox-based design during
+  Implement — see `plan.md` for why.)
 - `/` is a landing page introducing the quiz with links to both `/quiz` and
   `/quiz/scale`.
 - Both quiz variants use the same one-question-per-screen flow: each screen
@@ -86,16 +91,17 @@ optionally leave their email to get updates from the site owner.
       error), then the result is still shown to the user immediately from the
       client-computed data, and the save is retried a few times in the
       background without blocking or erroring the UI.
-- [ ] Given the results screen, when the user checks "send me updates" and
-      enters a validly formatted email, then that email is saved together
-      with the result row in Supabase.
-- [ ] Given the results screen, when the user leaves the email field empty or
-      leaves the consent checkbox unchecked, then no email is saved for that
-      result (column left empty).
-- [ ] Given the consent checkbox is checked with an invalid email format, when
-      the user tries to submit, then a validation error is shown and the quiz
-      cannot be submitted with that email until it's corrected or the
-      checkbox is unchecked.
+- [ ] Given the results screen, when the user enters a validly formatted
+      email and clicks Subscribe, then that email is saved onto the
+      already-persisted result row via an update.
+- [ ] Given the results screen, when the user never clicks Subscribe
+      (regardless of what's typed in the email field), then no email is
+      saved for that result (column left empty).
+- [ ] Given an invalid email format, when the user clicks Subscribe, then a
+      validation error is shown and no update is sent until it's corrected.
+- [ ] Given a result row that already has an email set, when a Subscribe
+      update is attempted again for that same id, then it has no effect —
+      RLS only allows setting `email` once, from null, never overwriting it.
 - [ ] Given the home page (`/`), when a user visits it, then they see an
       introduction and two clear links/buttons to `/quiz` and `/quiz/scale`.
 - [ ] Given either quiz variant, when any question is displayed, then exactly
@@ -132,11 +138,12 @@ optionally leave their email to get updates from the site owner.
 - If the Supabase save ultimately fails after retries, the in-browser result
   still displays correctly, but `/result/<id>` for that attempt may 404 later
   — visiting an unknown/failed result id shows a friendly "not found" state.
-- Email is present in the input but the consent checkbox is unchecked: email
-  is discarded, not saved.
-- Malformed email with the checkbox checked blocks saving the email (inline
-  validation error) but does not block submitting the quiz result itself once
-  the email is fixed or cleared / checkbox unchecked.
+- Email is present in the input but Subscribe is never clicked: email is
+  discarded, not saved. The base result save never includes email at all —
+  it's only ever attached via the separate Subscribe update.
+- Malformed email blocks the Subscribe update (inline validation error) but
+  never blocks or delays the base result save/permalink, since the two are
+  fully independent actions now.
 - Since question steps are client state on a single route (not per-question
   URLs), the browser's back/forward buttons navigate away from the quiz page
   entirely rather than stepping between questions — only the in-app Prev/Next
@@ -151,6 +158,11 @@ optionally leave their email to get updates from the site owner.
   path never exposes the `email` column, regardless of how the row was
   written (e.g. a public view/RPC that excludes `email`, or a server-side
   route that strips it). Exact mechanism is a Plan-phase decision.
+- Anonymous UPDATE (for the Subscribe flow) is scoped as narrowly as
+  possible: `anon` is only granted UPDATE on the `email` column specifically
+  (not the whole row), and RLS only permits the update while the row's
+  `email` is still null — so a result can be subscribed at most once, never
+  overwritten or cleared by a replayed/malicious request.
 - No accounts/auth — all Supabase writes/reads on this feature are anonymous.
 - Must fit existing conventions from `CLAUDE.md`: Next.js 16 App Router,
   TypeScript strict, Tailwind v4 + shadcn/`@base-ui/react` components, quiz
