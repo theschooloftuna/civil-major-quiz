@@ -12,27 +12,29 @@ interface ChoiceQuestionProps {
 
 function ChoiceQuestion({ question, selectedOptionId, onSelect }: ChoiceQuestionProps) {
   return (
-    <fieldset className="flex w-full flex-col gap-4">
-      <legend className="mb-2 text-2xl leading-snug font-normal text-foreground sm:text-[28px]">
+    <fieldset className="flex w-full flex-col">
+      <legend className="mb-8 text-[40px] leading-[52px] font-normal text-foreground">
         {question.prompt}
       </legend>
-      {question.options.map((option) => {
-        const selected = option.id === selectedOptionId;
-        return (
-          <button
-            key={option.id}
-            type="button"
-            aria-pressed={selected}
-            onClick={() => onSelect(option.id)}
-            className={cn(
-              buttonVariants({ variant: selected ? "primary" : "default", size: "lg" }),
-              "h-auto w-full justify-start px-6 py-4 text-left text-lg whitespace-normal"
-            )}
-          >
-            {option.label}
-          </button>
-        );
-      })}
+      <div className="flex flex-col gap-4">
+        {question.options.map((option) => {
+          const selected = option.id === selectedOptionId;
+          return (
+            <button
+              key={option.id}
+              type="button"
+              aria-pressed={selected}
+              onClick={() => onSelect(option.id)}
+              className={cn(
+                buttonVariants({ variant: selected ? "primary" : "default", size: "lg" }),
+                "h-auto w-full justify-start px-6 py-4 text-left text-lg whitespace-normal"
+              )}
+            >
+              {option.label}
+            </button>
+          );
+        })}
+      </div>
     </fieldset>
   );
 }

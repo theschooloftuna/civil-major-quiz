@@ -73,11 +73,11 @@
      Foreground/border use --moss (not --stone) and shadows use translucent
      --moss-shadow rather than solid ink, matching the reference site's
      actual production values, not an approximation of them. */
-  --background: #f7f5f1; /* ghost */
+  --background: #eeeae3; /* vellum */
   --foreground: #3c402b; /* moss */
   --card: #e9ebe2; /* foam */
   --card-foreground: #3c402b; /* moss */
-  --popover: #f7f5f1; /* ghost */
+  --popover: #eeeae3; /* vellum */
   --popover-foreground: #3c402b; /* moss */
   --primary: #c4e456; /* acid */
   --primary-foreground: #3c402b; /* moss — acid is light, needs dark text for contrast */
