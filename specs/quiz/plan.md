@@ -244,7 +244,7 @@ results view never shows a blocking/error state.
 ## Task checklist
 > Implement works these top-to-bottom, committing after each.
 - [x] `src/lib/majors.ts` + `src/lib/quiz-topics.ts` (content, no logic yet)
-- [ ] `src/lib/quiz-data-choice.ts` + `src/lib/quiz-data-scale.ts` + test
+- [x] `src/lib/quiz-data-choice.ts` + `src/lib/quiz-data-scale.ts` + test
       asserting matching `topicId`s across variants
 - [ ] `src/lib/scoring.ts` (`computeResults`, `getTopMajors`) + unit tests
 - [ ] Add `@supabase/supabase-js`; `src/lib/supabase/client.ts`
