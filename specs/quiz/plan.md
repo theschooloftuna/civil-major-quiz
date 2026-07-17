@@ -248,7 +248,7 @@ results view never shows a blocking/error state.
       asserting matching `topicId`s across variants
 - [x] `src/lib/scoring.ts` (`computeResults`, `getTopMajors`) + unit tests
 - [x] Add `@supabase/supabase-js`; `src/lib/supabase/client.ts`
-- [ ] `supabase/migrations/0001_quiz_results.sql`; `.env.example`
+- [x] `supabase/migrations/0001_quiz_results.sql`; `.env.example`
 - [ ] `src/lib/supabase/quiz-results.ts` (`saveQuizResult`,
       `getQuizResultById`) + mocked unit tests
 - [ ] Add shadcn `checkbox` and `input` primitives via the CLI
