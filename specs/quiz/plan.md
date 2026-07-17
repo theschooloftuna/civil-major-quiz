@@ -249,8 +249,17 @@ results view never shows a blocking/error state.
 - [x] `src/lib/scoring.ts` (`computeResults`, `getTopMajors`) + unit tests
 - [x] Add `@supabase/supabase-js`; `src/lib/supabase/client.ts`
 - [x] `supabase/migrations/0001_quiz_results.sql`; `.env.example`
-- [ ] `src/lib/supabase/quiz-results.ts` (`saveQuizResult`,
-      `getQuizResultById`) + mocked unit tests
+- [x] `src/lib/supabase/quiz-results.ts` (`saveQuizResult`,
+      `getQuizResultById`) + mocked unit tests — implemented as two files
+      instead of one: `quiz-results.ts` (plain read, `getQuizResultById`)
+      and `actions.ts` (`'use server'`, `saveQuizResult`). A `'use server'`
+      file may only export async functions, so keeping the non-action read
+      helper in the same file would have accidentally turned it into a
+      second public POST-callable action. Same responsibilities as planned,
+      split for correctness. Also added `src/lib/quiz-variant.ts`
+      (`QuizVariant` type) and `src/lib/email.ts` (`isValidEmail`, shared by
+      the server action and the future client-side form) — small extractions
+      to avoid duplicating the email regex, not scope additions.
 - [ ] Add shadcn `checkbox` and `input` primitives via the CLI
 - [ ] `src/hooks/use-quiz-flow.ts` + unit tests
 - [ ] `src/components/quiz/progress-bar.tsx`
