@@ -244,7 +244,7 @@ page branches on that distinction to show the right message.
 - [x] Add `src/lib/analytics/auth.ts` + `src/lib/analytics/actions.ts` +
       their tests (mocking `next/headers`).
 - [x] Add `src/lib/supabase/analytics.ts` (`getAnalyticsRows`) + tests.
-- [ ] Add `src/lib/analytics/stats.ts` (summary/distribution/trend/paginate)
+- [x] Add `src/lib/analytics/stats.ts` (summary/distribution/trend/paginate)
       + tests — the bulk of the business-logic surface, build this out fully
       before touching UI.
 - [ ] `pnpm dlx shadcn add table card chart`; add
