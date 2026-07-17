@@ -342,7 +342,12 @@ results view never shows a blocking/error state.
       a real `pnpm build`, not just vitest, since this is the first actual
       route wiring in the feature (Server Action boundary, RSC/client
       split)
-- [ ] `src/app/result/[id]/page.tsx` + `not-found.tsx`
+- [x] `src/app/result/[id]/page.tsx` + `not-found.tsx` — confirmed via
+      `node_modules/@base-ui/react/docs/.../button.md` (marked authoritative
+      over training data) that Button must never be used for links; styled
+      the not-found CTA as a plain `<Link>` with `buttonVariants()` instead.
+      Verified `notFound()`'s thrown digest (`NEXT_HTTP_ERROR_FALLBACK;404`)
+      directly against this Next version rather than assuming.
 - [ ] Rewrite `src/app/page.tsx` landing page
 - [ ] Wire tests for every acceptance criterion (fill any gaps found while
       implementing)
