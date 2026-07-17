@@ -8,7 +8,8 @@
 ## Mission
 A short personality-quiz web app: the user answers 7 questions, and the app
 recommends which civil engineering major/specialization suits them best out of
-6 options, showing the top 3 matches each with a match percentage.
+7 options, showing the top 3 matches (more if tied) each with a match
+percentage.
 
 ## Tech stack
 - Language / runtime: TypeScript, React 19
@@ -52,6 +53,20 @@ live in `src/app/globals.css` (`:root`), fonts are wired in `src/app/layout.tsx`
 - Test (single file): `pnpm test <path/to/file.test.tsx>`
 - Lint / format: `pnpm lint`
 - Typecheck: `pnpm typecheck`
+
+## Environment variables
+The quiz feature persists results to Supabase. Copy `.env.example` to
+`.env.local` (gitignored) and fill in real values from your Supabase
+project's API settings:
+- `SUPABASE_URL`
+- `SUPABASE_ANON_KEY`
+
+Apply the SQL migrations in `supabase/migrations/` to that project first
+(via the Supabase SQL editor or `supabase db push`) — they create the
+`quiz_results` table, its RLS policies, and the `quiz_results_public` view
+that the app's only public read path uses. Without these env vars set,
+quiz submissions still show a result locally but never get a working
+`/result/<id>` permalink.
 
 ## Architecture rules
 - Quiz domain logic (question set, scoring, major-matching, percentage calc)

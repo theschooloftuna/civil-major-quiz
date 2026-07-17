@@ -351,7 +351,7 @@ results view never shows a blocking/error state.
 - [x] Rewrite `src/app/page.tsx` landing page
 - [ ] Wire tests for every acceptance criterion (fill any gaps found while
       implementing)
-- [ ] Update `CLAUDE.md`: fix "6 options" → "7 majors"; document required
+- [x] Update `CLAUDE.md`: fix "6 options" → "7 majors"; document required
       env vars and the Supabase migration location
 
 ## Risks & rollout
