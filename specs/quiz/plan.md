@@ -261,7 +261,7 @@ results view never shows a blocking/error state.
       the server action and the future client-side form) — small extractions
       to avoid duplicating the email regex, not scope additions.
 - [x] Add shadcn `checkbox` and `input` primitives via the CLI
-- [ ] `src/hooks/use-quiz-flow.ts` + unit tests
+- [x] `src/hooks/use-quiz-flow.ts` + unit tests
 - [ ] `src/components/quiz/progress-bar.tsx`
 - [ ] `src/components/quiz/choice-question.tsx` +
       `src/components/quiz/scale-question.tsx`
