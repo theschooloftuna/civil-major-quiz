@@ -12,9 +12,6 @@ export interface SaveQuizResultInput {
   answers: Record<string, string | number>;
   scores: MajorScore[];
   topMajors: MajorScore[];
-  /** Only persisted when it passes format validation; caller decides whether
-   * the consent checkbox was ticked before ever sending a value here. */
-  email?: string;
 }
 
 export interface SaveQuizResultOutput {
@@ -23,14 +20,14 @@ export interface SaveQuizResultOutput {
 }
 
 /**
- * Server Action: anyone who can POST here can call it directly, not just
- * through the UI, so email format is re-validated server-side rather than
- * trusted from the client. Inserts with the anon key — Postgres RLS (insert
- * only, no select) is the real enforcement boundary, not this function.
+ * Server Action: fires automatically as soon as results are computed.
+ * Never carries an email — that's a separate action (subscribeToUpdates)
+ * so the user has time to type one before anything saves. Anyone who can
+ * POST here can call it directly, not just through the UI, but the insert
+ * uses the anon key, so Postgres RLS (insert only, no select) is the real
+ * enforcement boundary, not this function.
  */
 export async function saveQuizResult(input: SaveQuizResultInput): Promise<SaveQuizResultOutput> {
-  const email = input.email && isValidEmail(input.email) ? input.email : null;
-
   const { error } = await getSupabaseClient()
     .from("quiz_results")
     .insert({
@@ -39,8 +36,34 @@ export async function saveQuizResult(input: SaveQuizResultInput): Promise<SaveQu
       answers: input.answers,
       scores: input.scores,
       top_majors: input.topMajors,
-      email,
     });
 
   return { id: input.id, saved: !error };
+}
+
+export interface SubscribeOutput {
+  saved: boolean;
+}
+
+/**
+ * Server Action behind the results screen's "Subscribe" button. Re-validates
+ * the email format server-side (render-time validation isn't a security
+ * boundary). The update itself can only ever set `email` once — RLS only
+ * matches rows where it's still null — so `saved: false` here can mean the
+ * write failed OR that this row already has an email; the caller doesn't
+ * need to tell those apart.
+ */
+export async function subscribeToUpdates(id: string, email: string): Promise<SubscribeOutput> {
+  if (!isValidEmail(email)) {
+    return { saved: false };
+  }
+
+  const { data, error } = await getSupabaseClient()
+    .from("quiz_results")
+    .update({ email })
+    .eq("id", id)
+    .select("id")
+    .maybeSingle();
+
+  return { saved: !error && data != null };
 }
