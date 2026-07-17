@@ -328,14 +328,16 @@ results view never shows a blocking/error state.
       instead of after, since quiz-flow needs to render it — the plan listed
       them in an order that had quiz-flow depending on a file that didn't
       exist yet; same deliverables, just resequenced)
-- [ ] `src/components/quiz/submit-panel.tsx` (retake, copy link, background
+- [x] `src/components/quiz/submit-panel.tsx` (retake, copy link, background
       base save + retry on mount) + separate Subscribe email field/button
-      wired to the new `subscribeToUpdates` action; also revisit
-      `src/lib/supabase/actions.ts` to drop `email` from `saveQuizResult`
-      and add `subscribeToUpdates`; add migration
-      `0002_quiz_results_email_subscribe.sql` (scoped anon UPDATE) — see
-      Approach/Contract sections above for why this changed from the
-      original single-save design
+      wired to the new `subscribeToUpdates` action; `src/lib/supabase/actions.ts`
+      revised to drop `email` from `saveQuizResult` and add
+      `subscribeToUpdates`; migration `0002_quiz_results_email_subscribe.sql`
+      added (scoped anon UPDATE). Also fixed a real test-infra gap found
+      while writing submit-panel's tests: RTL's auto-cleanup between tests
+      was never registered (vitest.config.mts doesn't set `test.globals`),
+      so multi-render component test files were leaking DOM across tests —
+      added an explicit `afterEach(cleanup)` in vitest.setup.ts.
 - [ ] `src/app/quiz/page.tsx` + `src/app/quiz/scale/page.tsx`
 - [ ] `src/app/result/[id]/page.tsx` + `not-found.tsx`
 - [ ] Rewrite `src/app/page.tsx` landing page
