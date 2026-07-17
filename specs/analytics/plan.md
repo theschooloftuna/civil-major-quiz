@@ -240,7 +240,7 @@ page branches on that distinction to show the right message.
 > Implement works these top-to-bottom, committing after each.
 - [x] Add `SUPABASE_SERVICE_ROLE_KEY` / `ANALYTICS_PASSCODE` to
       `.env.example` and `CLAUDE.md`; add `src/lib/supabase/admin-client.ts`.
-- [ ] Add `src/lib/analytics/session.ts` + tests.
+- [x] Add `src/lib/analytics/session.ts` + tests.
 - [ ] Add `src/lib/analytics/auth.ts` + `src/lib/analytics/actions.ts` +
       their tests (mocking `next/headers`).
 - [ ] Add `src/lib/supabase/analytics.ts` (`getAnalyticsRows`) + tests.
