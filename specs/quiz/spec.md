@@ -100,15 +100,19 @@ optionally leave their email to get updates from the site owner.
       background without blocking or erroring the UI.
 - [ ] Given the results screen, when the user enters a validly formatted
       email and clicks Subscribe, then that email is saved onto the
-      already-persisted result row via an update.
+      already-persisted result row via a `SECURITY DEFINER` Postgres function
+      (`subscribe_quiz_result`) called through `.rpc()`, not a direct table
+      update.
 - [ ] Given the results screen, when the user never clicks Subscribe
       (regardless of what's typed in the email field), then no email is
       saved for that result (column left empty).
 - [ ] Given an invalid email format, when the user clicks Subscribe, then a
       validation error is shown and no update is sent until it's corrected.
 - [ ] Given a result row that already has an email set, when a Subscribe
-      update is attempted again for that same id, then it has no effect —
-      RLS only allows setting `email` once, from null, never overwriting it.
+      call is attempted again for that same id, then it has no effect (the
+      function's own set-once check — `where id = result_id and email is
+      null` — returns `false`, no row is touched) — never overwritten or
+      cleared by a replayed/malicious request.
 - [ ] Given the home page (`/`), when a user visits it, then they see an
       introduction and two clear links/buttons to `/quiz` and `/quiz/scale`.
 - [ ] Given either quiz variant, when any question is displayed, then exactly
@@ -165,11 +169,17 @@ optionally leave their email to get updates from the site owner.
   path never exposes the `email` column, regardless of how the row was
   written (e.g. a public view/RPC that excludes `email`, or a server-side
   route that strips it). Exact mechanism is a Plan-phase decision.
-- Anonymous UPDATE (for the Subscribe flow) is scoped as narrowly as
-  possible: `anon` is only granted UPDATE on the `email` column specifically
-  (not the whole row), and RLS only permits the update while the row's
-  `email` is still null — so a result can be subscribed at most once, never
-  overwritten or cleared by a replayed/malicious request.
+- The Subscribe flow writes through a `SECURITY DEFINER` Postgres function
+  (`subscribe_quiz_result(result_id uuid, new_email text) returns boolean`),
+  not a direct anonymous UPDATE. Supabase grants `anon` broad column
+  privileges on new tables by default (a platform default, not something this
+  project configures), so a direct UPDATE-policy approach can't rely on
+  column grants for protection, and confirming success via `.update().select()`
+  would itself require a SELECT policy — which would make `email` readable.
+  The function bypasses RLS as its owner, performs its own set-once check
+  (`where id = result_id and email is null`), and returns only a boolean,
+  never row data; `anon` is granted `EXECUTE` on the function but has no
+  direct UPDATE grant on `quiz_results.email` at all.
 - No accounts/auth — all Supabase writes/reads on this feature are anonymous.
 - Must fit existing conventions from `CLAUDE.md`: Next.js 16 App Router,
   TypeScript strict, Tailwind v4 + shadcn/`@base-ui/react` components, quiz

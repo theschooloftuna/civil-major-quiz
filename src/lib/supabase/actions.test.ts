@@ -1,12 +1,9 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 const insertMock = vi.fn();
-const maybeSingleMock = vi.fn();
-const selectMock = vi.fn(() => ({ maybeSingle: maybeSingleMock }));
-const eqMock = vi.fn(() => ({ select: selectMock }));
-const updateMock = vi.fn(() => ({ eq: eqMock }));
-const fromMock = vi.fn(() => ({ insert: insertMock, update: updateMock }));
-const getSupabaseClientMock = vi.fn(() => ({ from: fromMock }));
+const fromMock = vi.fn(() => ({ insert: insertMock }));
+const rpcMock = vi.fn();
+const getSupabaseClientMock = vi.fn(() => ({ from: fromMock, rpc: rpcMock }));
 
 vi.mock("./client", () => ({
   getSupabaseClient: () => getSupabaseClientMock(),
@@ -26,7 +23,7 @@ describe("saveQuizResult", () => {
   beforeEach(() => {
     insertMock.mockReset();
     fromMock.mockClear();
-    getSupabaseClientMock.mockReset().mockReturnValue({ from: fromMock });
+    getSupabaseClientMock.mockReset().mockReturnValue({ from: fromMock, rpc: rpcMock });
   });
 
   test("inserts into quiz_results with no email field at all", async () => {
@@ -57,29 +54,35 @@ describe("saveQuizResult", () => {
 
 describe("subscribeToUpdates", () => {
   beforeEach(() => {
-    updateMock.mockClear();
-    eqMock.mockClear();
-    maybeSingleMock.mockReset();
-    getSupabaseClientMock.mockReset().mockReturnValue({ from: fromMock });
+    rpcMock.mockReset();
+    getSupabaseClientMock.mockReset().mockReturnValue({ from: fromMock, rpc: rpcMock });
   });
 
   test("rejects a malformed email before running any query", async () => {
     const result = await subscribeToUpdates(baseInput.id, "not-an-email");
     expect(result).toEqual({ saved: false });
-    expect(updateMock).not.toHaveBeenCalled();
+    expect(rpcMock).not.toHaveBeenCalled();
   });
 
-  test("sends a scoped update for a validly formatted email", async () => {
-    maybeSingleMock.mockResolvedValue({ data: { id: baseInput.id }, error: null });
+  test("calls the subscribe_quiz_result function for a validly formatted email", async () => {
+    rpcMock.mockResolvedValue({ data: true, error: null });
     const result = await subscribeToUpdates(baseInput.id, "student@example.com");
 
-    expect(updateMock).toHaveBeenCalledWith({ email: "student@example.com" });
-    expect(eqMock).toHaveBeenCalledWith("id", baseInput.id);
+    expect(rpcMock).toHaveBeenCalledWith("subscribe_quiz_result", {
+      result_id: baseInput.id,
+      new_email: "student@example.com",
+    });
     expect(result).toEqual({ saved: true });
   });
 
-  test("reports saved: false when RLS matches no rows (already subscribed or unknown id)", async () => {
-    maybeSingleMock.mockResolvedValue({ data: null, error: null });
+  test("reports saved: false when the function reports no row updated (already subscribed or unknown id)", async () => {
+    rpcMock.mockResolvedValue({ data: false, error: null });
+    const result = await subscribeToUpdates(baseInput.id, "student@example.com");
+    expect(result).toEqual({ saved: false });
+  });
+
+  test("reports saved: false when the rpc call errors", async () => {
+    rpcMock.mockResolvedValue({ data: null, error: { message: "network error" } });
     const result = await subscribeToUpdates(baseInput.id, "student@example.com");
     expect(result).toEqual({ saved: false });
   });

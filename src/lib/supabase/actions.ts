@@ -55,10 +55,14 @@ export interface SubscribeOutput {
 /**
  * Server Action behind the results screen's "Subscribe" button. Re-validates
  * the email format server-side (render-time validation isn't a security
- * boundary). The update itself can only ever set `email` once — RLS only
- * matches rows where it's still null — so `saved: false` here can mean the
- * write failed OR that this row already has an email; the caller doesn't
- * need to tell those apart.
+ * boundary). Calls a SECURITY DEFINER Postgres function rather than doing a
+ * direct table update: Supabase grants anon broad column privileges by
+ * default, so the only real protection for `email` is that anon has no
+ * SELECT policy on this table at all — which also means a plain
+ * `.update().select()` can never reliably confirm success, since returning
+ * the written row is itself a read. The function runs as its owner
+ * (bypassing RLS internally), performs its own set-once check, and returns
+ * only a boolean, never any row data.
  */
 export async function subscribeToUpdates(id: string, email: string): Promise<SubscribeOutput> {
   if (!isValidEmail(email)) {
@@ -66,14 +70,12 @@ export async function subscribeToUpdates(id: string, email: string): Promise<Sub
   }
 
   try {
-    const { data, error } = await getSupabaseClient()
-      .from("quiz_results")
-      .update({ email })
-      .eq("id", id)
-      .select("id")
-      .maybeSingle();
+    const { data, error } = await getSupabaseClient().rpc("subscribe_quiz_result", {
+      result_id: id,
+      new_email: email,
+    });
 
-    return { saved: !error && data != null };
+    return { saved: !error && data === true };
   } catch {
     return { saved: false };
   }

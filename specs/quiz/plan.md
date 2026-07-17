@@ -260,6 +260,67 @@ persistence parts of Implement can be verified end-to-end. Everything else
 (quiz flow, scoring, UI) doesn't depend on this and can be built/tested
 first.
 
+**REVISED after real-project verification — migration 0002's direct-UPDATE
+policy turned out to be unreliable in practice, replaced by migration
+`0003_quiz_results_subscribe_function.sql`:**
+
+Once a real Supabase project was wired up, the Subscribe flow silently never
+set `email`, with no error surfaced anywhere. Root cause, found by having the
+user run diagnostic SQL (`pg_policy`, `information_schema.column_privileges`)
+against their own project: Supabase grants `anon` broad SELECT/UPDATE/INSERT
+privileges on *every column* of a new table by default — a platform default,
+not something migration 0001/0002 configured. So the column-scoped `grant
+update (email) ...` in 0002 was never actually the protection boundary; the
+real (and only) protection was "no SELECT policy exists for anon on this
+table at all." That has a consequence for the UPDATE side too: confirming a
+write succeeded via `.update().select()` requires reading back the row,
+which requires a SELECT *policy* — so a direct UPDATE can never reliably
+report success without also making `email` broadly readable.
+
+```sql
+create or replace function public.subscribe_quiz_result(result_id uuid, new_email text)
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  updated_count int;
+begin
+  update public.quiz_results
+  set email = new_email
+  where id = result_id and email is null;
+
+  get diagnostics updated_count = row_count;
+  return updated_count > 0;
+end;
+$$;
+
+grant execute on function public.subscribe_quiz_result(uuid, text) to anon;
+
+drop policy if exists "anon can set email once, only while it is still null" on public.quiz_results;
+revoke update (email) on public.quiz_results from anon;
+```
+
+This is the standard Supabase pattern for "write plus a confirmation
+signal, no row-data exposure": `SECURITY DEFINER` runs the function as its
+owner (the table owner), bypassing RLS internally, so it can read-after-write
+for its own set-once check without needing any SELECT policy for `anon`. It
+returns only a `boolean` — never a row, never `email` itself. The migration
+also revokes the now-unnecessary direct `UPDATE (email)` grant from `anon`
+and drops the 0002 policy, so all subscribe writes must go through the
+vetted function; there is no longer any direct write path to `email` at all.
+
+`src/lib/supabase/actions.ts`'s `subscribeToUpdates` was updated to call
+`getSupabaseClient().rpc("subscribe_quiz_result", { result_id, new_email })`
+instead of `.from("quiz_results").update(...).eq(...).select(...)`. Its
+return contract is unchanged (`{ saved: boolean }`, `false` covers both
+"already subscribed" and "unknown id" and any query error) — only the
+underlying mechanism moved from a direct table write to an RPC call.
+Verified end-to-end against the real project: first call for a fresh id
+returns `true` and sets the email; a second call for the same id (or an
+unknown id) returns `false` and touches nothing.
+
 ## Test strategy
 - **`scoring.ts` (unit):** percentage formula (`raw ÷ max × 100`,
   independent per major); tie-inclusive top-3 (covers "tied at cutoff" AC);
@@ -379,6 +440,17 @@ results view never shows a blocking/error state.
       asserting `{saved: false}` / `null` rather than a rejection.
 - [x] Update `CLAUDE.md`: fix "6 options" → "7 majors"; document required
       env vars and the Supabase migration location
+- [x] Fix Subscribe/email persistence against the real Supabase project:
+      diagnosed why migration 0002's direct UPDATE policy silently never set
+      `email` (Supabase's default broad `anon` column grants, plus RETURNING
+      after UPDATE requiring a SELECT policy — see plan revision note above);
+      added `supabase/migrations/0003_quiz_results_subscribe_function.sql`
+      (`SECURITY DEFINER` function `subscribe_quiz_result`, revokes the
+      direct UPDATE grant); switched `subscribeToUpdates` to call `.rpc(...)`
+      instead; updated `actions.test.ts`'s mocks to match; verified against
+      the real project (fresh id → `true` + email set, repeat/unknown id →
+      `false`) and through the live UI (Subscribe button shows "You're
+      subscribed").
 
 ## Risks & rollout
 - **Highest risk: RLS/view misconfiguration leaking `email`.** Mitigated by
