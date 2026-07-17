@@ -304,14 +304,21 @@ results view never shows a blocking/error state.
 - [x] `src/lib/quiz-data-choice.ts` + `src/lib/quiz-data-scale.ts` + test
       asserting matching `topicId`s across variants
 - [x] `src/lib/scoring.ts` (`computeResults`, `getTopMajors`) + unit tests.
-      **Revised post-implementation:** added `normalizeToDisplayPercentage`,
-      applied to `getTopMajors`'s output before display/save. Originally
-      this plan chose "each major's independent raw÷max%" over "normalize
-      the shown top matches to sum to 100%" — on reflection the normalized
-      version reads better (clean numbers that sum to 100, rather than e.g.
-      three majors all near 100% independently) and was the original
-      recommendation. Selection/ranking still uses the independent
-      percentage; only the displayed/saved number changed. See spec.md.
+      **Revised post-implementation, twice:**
+      1. Added `normalizeToDisplayPercentage`, applied to `getTopMajors`'s
+         output before display/save — reverting from "each major's
+         independent raw÷max%" back to "normalize the shown top matches to
+         sum to 100%," the original recommendation.
+      2. Real bug found via live use: that first version normalized by
+         *raw score*, but `getTopMajors` ranks by *independent percentage*
+         — different metrics, so a major could rank #1 while showing a
+         lower percentage than the major ranked #2 (reported: 38%/44%/19%
+         shown, but 38% ranked first). Raw-share also structurally favors
+         majors with a bigger max-possible total regardless of true fit.
+         Fixed by normalizing the independent percentages themselves, so
+         ranking and display always derive from the same metric and can't
+         disagree by construction. See spec.md and `normalizeToDisplayPercentage`'s
+         doc comment.
 - [x] Add `@supabase/supabase-js`; `src/lib/supabase/client.ts`
 - [x] `supabase/migrations/0001_quiz_results.sql`; `.env.example`
 - [x] `src/lib/supabase/quiz-results.ts` (`saveQuizResult`,

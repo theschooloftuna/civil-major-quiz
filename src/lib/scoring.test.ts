@@ -84,7 +84,7 @@ describe("getTopMajors", () => {
 });
 
 describe("normalizeToDisplayPercentage", () => {
-  test("rescales raw scores so percentages sum to 100", () => {
+  test("rescales independent percentages so they sum to 100 (equal max case)", () => {
     const results: MajorScore[] = [
       score("structural", 30, 100),
       score("geotechnical", 20, 100),
@@ -96,6 +96,21 @@ describe("normalizeToDisplayPercentage", () => {
     expect(normalized.find((r) => r.majorId === "structural")!.percentage).toBeCloseTo(50);
     expect(normalized.find((r) => r.majorId === "geotechnical")!.percentage).toBeCloseTo(33.333, 2);
     expect(normalized.find((r) => r.majorId === "transportation")!.percentage).toBeCloseTo(16.667, 2);
+  });
+
+  test("never contradicts rank order, even when majors have very different max totals", () => {
+    // Regression test: A has a much bigger raw score but a *weaker* relative
+    // match (20 of a possible 200 = 10%); B has a smaller raw score but a
+    // *stronger* relative match (38 of a possible 40 = 95%). getTopMajors
+    // ranks B first by independent percentage - normalizing must agree,
+    // i.e. B's displayed percentage must also be the highest, never A's.
+    const results: MajorScore[] = [score("structural", 20, 200), score("geotechnical", 38, 40)];
+    const ranked = getTopMajors(results, 2);
+    const normalized = normalizeToDisplayPercentage(ranked);
+
+    expect(ranked[0].majorId).toBe("geotechnical");
+    expect(normalized[0].majorId).toBe("geotechnical");
+    expect(normalized[0].percentage).toBeGreaterThan(normalized[1].percentage);
   });
 
   test("normalizes whatever set is passed in, including ties beyond 3", () => {
@@ -113,7 +128,7 @@ describe("normalizeToDisplayPercentage", () => {
     }
   });
 
-  test("splits evenly instead of dividing by zero when every raw score is 0", () => {
+  test("splits evenly instead of dividing by zero when every percentage is 0", () => {
     const results: MajorScore[] = [
       score("structural", 0, 100),
       score("geotechnical", 0, 100),

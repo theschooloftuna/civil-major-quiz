@@ -79,11 +79,15 @@ optionally leave their email to get updates from the site owner.
       multiple-choice variant.
 - [ ] Given the displayed top matches (top 3, or more if tied), when results
       are computed, then each shown major's percentage is its share of the
-      total raw score across just the shown majors (`raw ÷ sum of shown
-      majors' raw scores × 100`), so the displayed percentages always sum to
-      100. (Revised during polish — see `plan.md`. Each major's independent
-      `raw ÷ its own max` percentage is still computed internally and used
-      to rank/select which majors are "top," it's just not what's shown.)
+      total *independent* percentage across just the shown majors (each
+      major's own `raw ÷ its own max`, then those independent percentages
+      rescaled to sum to 100), so the displayed percentages always sum to
+      100 *and* the display order can never contradict the displayed
+      numbers — ranking and normalization both derive from the same
+      independent-percentage metric. (Revised twice during polish — see
+      `plan.md`. An earlier version normalized by raw score directly, which
+      let a major with a bigger max-possible total outrank a stronger
+      relative match and show a lower number while still ranked higher.)
 - [ ] Given two or more majors are tied at the cutoff for the 3rd result slot,
       when results are shown, then all tied majors are included (the
       displayed list may be longer than 3).

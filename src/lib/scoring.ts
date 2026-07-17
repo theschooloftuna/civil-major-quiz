@@ -53,21 +53,27 @@ export function getTopMajors(results: MajorScore[], n = 3): MajorScore[] {
 }
 
 /**
- * Rescales the given (already-selected) results' raw scores so their
- * percentages sum to 100 — e.g. 45% / 32% / 23% instead of each major's
- * independent raw÷max percentage, which can land anywhere and doesn't sum
- * to anything meaningful. Ranking/selection (getTopMajors) stays based on
- * independent percentage; this only reshapes how the selected set displays.
+ * Rescales the given (already-selected) results' *independent* percentages
+ * (raw÷own max) so they sum to 100 — e.g. 45% / 32% / 23% instead of each
+ * major's raw-vs-own-max percentage, which can land anywhere and doesn't
+ * sum to anything meaningful. Deliberately normalizes the independent
+ * percentage rather than raw score: raw alone favors majors with a bigger
+ * max-possible total regardless of how strong a relative match they are,
+ * and — critically — using the same metric getTopMajors ranks by means the
+ * display order can never contradict the displayed numbers.
  */
 export function normalizeToDisplayPercentage(results: MajorScore[]): MajorScore[] {
-  const totalRaw = results.reduce((sum, result) => sum + result.raw, 0);
+  const totalPercentage = results.reduce((sum, result) => sum + result.percentage, 0);
 
-  if (totalRaw <= 0) {
+  if (totalPercentage <= 0) {
     const evenShare = results.length > 0 ? 100 / results.length : 0;
     return results.map((result) => ({ ...result, percentage: evenShare }));
   }
 
-  return results.map((result) => ({ ...result, percentage: (result.raw / totalRaw) * 100 }));
+  return results.map((result) => ({
+    ...result,
+    percentage: (result.percentage / totalPercentage) * 100,
+  }));
 }
 
 export function scoreChoiceAnswers(
