@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/theme-custom/button";
 import { ChoiceQuestion } from "@/components/quiz/choice-question";
 import { ScaleQuestion } from "@/components/quiz/scale-question";
 import { ProgressBar } from "@/components/quiz/progress-bar";
@@ -74,19 +74,21 @@ function QuizFlow({ variant }: QuizFlowProps) {
       )}
 
       <div className="flex justify-between gap-3">
-        <Button type="button" variant="outline" disabled={!flow.canGoPrev} onClick={flow.prev}>
+        <Button type="button" size="lg" disabled={!flow.canGoPrev} onClick={flow.prev}>
           Prev
         </Button>
         {flow.isLast ? (
           <Button
             type="button"
+            size="lg"
+            variant="primary"
             disabled={!flow.canGoNext}
             onClick={() => setResultId(crypto.randomUUID())}
           >
             Submit
           </Button>
         ) : (
-          <Button type="button" disabled={!flow.canGoNext} onClick={flow.next}>
+          <Button type="button" size="lg" variant="primary" disabled={!flow.canGoNext} onClick={flow.next}>
             Next
           </Button>
         )}

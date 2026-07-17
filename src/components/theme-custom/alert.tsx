@@ -32,7 +32,7 @@ function Alert({
   className,
   variant,
   ...props
-}: React.ComponentProps<typeof AlertPrimitive> & VariantProps<typeof alertVariants>) {
+}: Omit<React.ComponentProps<typeof AlertPrimitive>, "variant"> & VariantProps<typeof alertVariants>) {
   return <AlertPrimitive className={cn(alertVariants({ variant }), className)} {...props} />;
 }
 

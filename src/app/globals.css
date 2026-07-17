@@ -79,8 +79,8 @@
   --card-foreground: #3c402b; /* moss */
   --popover: #f7f5f1; /* ghost */
   --popover-foreground: #3c402b; /* moss */
-  --primary: #1fa647; /* green */
-  --primary-foreground: #f7f5f1; /* ghost */
+  --primary: #c4e456; /* acid */
+  --primary-foreground: #3c402b; /* moss — acid is light, needs dark text for contrast */
   --secondary: #d2d6c5; /* lichen */
   --secondary-foreground: #3c402b; /* moss */
   --muted: #e9ebe2; /* foam */

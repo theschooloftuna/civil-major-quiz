@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { MAJORS } from "@/lib/majors";
 import type { MajorScore } from "@/lib/scoring";
 
@@ -8,27 +9,36 @@ interface ResultsListProps {
 
 function ResultsList({ results }: ResultsListProps) {
   return (
-    <ol className="flex w-full flex-col gap-4">
+    <ol className="flex w-full flex-col gap-5">
       {results.map((result, index) => {
         const major = MAJORS.find((m) => m.id === result.majorId);
         if (!major) return null;
+        const isTopMatch = index === 0;
 
         return (
           <li
             key={result.majorId}
-            className="flex flex-col gap-2 rounded-lg border border-foreground bg-card p-4 shadow-hard-sm"
+            className={cn(
+              "flex flex-col gap-3 rounded-lg border border-moss p-6",
+              isTopMatch ? "bg-acid text-moss shadow-hard" : "bg-card text-card-foreground shadow-hard-sm"
+            )}
           >
             <div className="flex items-baseline justify-between gap-3">
-              <span className="font-mono text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              <span className="font-mono text-xs font-semibold uppercase tracking-wide text-moss/70">
                 #{index + 1} match
               </span>
-              <span className="font-mono text-sm font-semibold text-primary">
+              <span
+                className={cn(
+                  "font-mono text-lg font-semibold",
+                  isTopMatch ? "text-moss" : "text-green"
+                )}
+              >
                 {Math.round(result.percentage)}%
               </span>
             </div>
-            <h3 className="text-lg font-semibold text-foreground">{major.name}</h3>
-            <p className="text-sm text-muted-foreground">{major.description}</p>
-            <p className="font-mono text-xs uppercase tracking-wide text-muted-foreground">
+            <h3 className="text-2xl font-normal">{major.name}</h3>
+            <p className="text-base text-moss/80">{major.description}</p>
+            <p className="font-mono text-xs tracking-wide text-moss/70 uppercase">
               {major.careers.join(" · ")}
             </p>
           </li>

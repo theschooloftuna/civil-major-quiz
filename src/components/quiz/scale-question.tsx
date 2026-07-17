@@ -1,6 +1,6 @@
 "use client";
 
-import { buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/theme-custom/button";
 import { cn } from "@/lib/utils";
 import type { ScaleQuestion as ScaleQuestionData } from "@/lib/quiz-data-scale";
 
@@ -14,11 +14,11 @@ interface ScaleQuestionProps {
 
 function ScaleQuestion({ question, selectedValue, onSelect }: ScaleQuestionProps) {
   return (
-    <fieldset className="flex w-full flex-col gap-4">
-      <legend className="mb-2 text-lg font-semibold text-foreground sm:text-xl">
+    <fieldset className="flex w-full flex-col gap-6">
+      <legend className="mb-2 text-2xl leading-snug font-normal text-foreground sm:text-[28px]">
         {question.statement}
       </legend>
-      <div className="flex w-full items-center justify-between gap-2">
+      <div className="flex w-full items-center justify-between gap-3">
         {SCALE_VALUES.map((value) => {
           const selected = value === selectedValue;
           return (
@@ -29,8 +29,8 @@ function ScaleQuestion({ question, selectedValue, onSelect }: ScaleQuestionProps
               aria-label={`${value} out of 5`}
               onClick={() => onSelect(value)}
               className={cn(
-                buttonVariants({ variant: selected ? "default" : "outline", size: "icon-lg" }),
-                "rounded-full"
+                buttonVariants({ variant: selected ? "primary" : "default", size: "icon-lg" }),
+                "rounded-full text-lg"
               )}
             >
               {value}
@@ -38,7 +38,7 @@ function ScaleQuestion({ question, selectedValue, onSelect }: ScaleQuestionProps
           );
         })}
       </div>
-      <div className="flex w-full justify-between text-xs text-muted-foreground">
+      <div className="flex w-full justify-between font-mono text-xs uppercase tracking-wide text-muted-foreground">
         <span>Strongly disagree</span>
         <span>Strongly agree</span>
       </div>

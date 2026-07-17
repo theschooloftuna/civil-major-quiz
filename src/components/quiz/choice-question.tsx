@@ -1,6 +1,6 @@
 "use client";
 
-import { buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/theme-custom/button";
 import { cn } from "@/lib/utils";
 import type { ChoiceQuestion as ChoiceQuestionData } from "@/lib/quiz-data-choice";
 
@@ -12,8 +12,8 @@ interface ChoiceQuestionProps {
 
 function ChoiceQuestion({ question, selectedOptionId, onSelect }: ChoiceQuestionProps) {
   return (
-    <fieldset className="flex w-full flex-col gap-3">
-      <legend className="mb-2 text-lg font-semibold text-foreground sm:text-xl">
+    <fieldset className="flex w-full flex-col gap-4">
+      <legend className="mb-2 text-2xl leading-snug font-normal text-foreground sm:text-[28px]">
         {question.prompt}
       </legend>
       {question.options.map((option) => {
@@ -25,8 +25,8 @@ function ChoiceQuestion({ question, selectedOptionId, onSelect }: ChoiceQuestion
             aria-pressed={selected}
             onClick={() => onSelect(option.id)}
             className={cn(
-              buttonVariants({ variant: selected ? "default" : "outline" }),
-              "h-auto w-full justify-start whitespace-normal py-3 text-left text-sm"
+              buttonVariants({ variant: selected ? "primary" : "default", size: "lg" }),
+              "h-auto w-full justify-start px-6 py-4 text-left text-lg whitespace-normal"
             )}
           >
             {option.label}

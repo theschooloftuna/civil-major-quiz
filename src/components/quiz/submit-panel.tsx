@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/theme-custom/button";
+import { Field, FieldLabel, FieldError } from "@/components/theme-custom/field";
+import { Input } from "@/components/theme-custom/input";
+import { Alert, AlertDescription } from "@/components/theme-custom/alert";
 import { isValidEmail } from "@/lib/email";
 import type { QuizVariant } from "@/lib/quiz-variant";
 import type { MajorScore } from "@/lib/scoring";
@@ -26,7 +29,6 @@ type SubscribeState = "idle" | "sending" | "subscribed" | "error";
 
 function SubmitPanel({ resultId, variant, answers, scores, topMajors, onRetake }: SubmitPanelProps) {
   const [saveState, setSaveState] = useState<SaveState>("pending");
-  const [copied, setCopied] = useState(false);
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState<string | null>(null);
   const [subscribeState, setSubscribeState] = useState<SubscribeState>("idle");
@@ -61,8 +63,7 @@ function SubmitPanel({ resultId, variant, answers, scores, topMajors, onRetake }
     if (saveState !== "saved") return;
     const shareUrl = `${window.location.origin}/result/${resultId}`;
     await navigator.clipboard.writeText(shareUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    toast.success("Link copied to clipboard!");
   }
 
   async function handleSubscribe() {
@@ -77,33 +78,34 @@ function SubmitPanel({ resultId, variant, answers, scores, topMajors, onRetake }
   }
 
   return (
-    <div className="flex w-full flex-col gap-4 border-t border-foreground pt-4">
-      <div className="flex flex-wrap gap-3">
-        <Button type="button" variant="outline" onClick={onRetake}>
+    <div className="flex w-full flex-col gap-6 border-t border-moss pt-6">
+      <div className="flex flex-wrap gap-4">
+        <Button type="button" size="lg" onClick={onRetake}>
           Retake quiz
         </Button>
-        <Button type="button" variant="secondary" disabled={saveState !== "saved"} onClick={handleCopyLink}>
+        <Button
+          type="button"
+          size="lg"
+          variant="secondary"
+          disabled={saveState !== "saved"}
+          onClick={handleCopyLink}
+        >
           {saveState === "failed"
             ? "Link isn't ready"
             : saveState === "pending"
               ? "Preparing link…"
-              : copied
-                ? "Copied!"
-                : "Copy link"}
+              : "Copy link"}
         </Button>
       </div>
 
       {subscribeState === "subscribed" ? (
-        <p className="text-sm text-muted-foreground">You&apos;re subscribed for updates.</p>
+        <Alert variant="success" className="max-w-md">
+          <AlertDescription>You&apos;re subscribed for updates.</AlertDescription>
+        </Alert>
       ) : (
-        <div className="flex flex-col gap-2">
-          <label
-            htmlFor="subscribe-email"
-            className="font-mono text-xs uppercase tracking-wide text-muted-foreground"
-          >
-            Get updates about civil-major-quiz
-          </label>
-          <div className="flex flex-wrap gap-2">
+        <Field className="max-w-md">
+          <FieldLabel htmlFor="subscribe-email">Get updates about civil-major-quiz</FieldLabel>
+          <div className="flex flex-wrap gap-3">
             <Input
               id="subscribe-email"
               type="email"
@@ -115,15 +117,13 @@ function SubmitPanel({ resultId, variant, answers, scores, topMajors, onRetake }
               }}
               className="max-w-xs"
             />
-            <Button type="button" disabled={subscribeState === "sending"} onClick={handleSubscribe}>
+            <Button type="button" size="default" disabled={subscribeState === "sending"} onClick={handleSubscribe}>
               {subscribeState === "sending" ? "Subscribing…" : "Subscribe"}
             </Button>
           </div>
-          {emailError && <p className="text-xs text-destructive">{emailError}</p>}
-          {subscribeState === "error" && (
-            <p className="text-xs text-destructive">Couldn&apos;t subscribe right now. Try again.</p>
-          )}
-        </div>
+          {emailError && <FieldError>{emailError}</FieldError>}
+          {subscribeState === "error" && <FieldError>Couldn&apos;t subscribe right now. Try again.</FieldError>}
+        </Field>
       )}
     </div>
   );

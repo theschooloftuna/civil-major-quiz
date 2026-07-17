@@ -21,7 +21,7 @@ const buttonVariants = cva(
         secondary: "border-moss bg-secondary text-secondary-foreground hover:bg-lichen/80",
         ghost: "border-transparent text-foreground shadow-none hover:bg-muted active:shadow-none",
         destructive: "border-moss bg-destructive/10 text-destructive hover:bg-destructive/20",
-        link: "border-transparent text-primary underline-offset-4 shadow-none hover:underline active:translate-x-0 active:translate-y-0",
+        link: "border-transparent text-green underline-offset-4 shadow-none hover:underline active:translate-x-0 active:translate-y-0",
       },
       size: {
         sm: "h-10 px-5 text-sm shadow-hard-sm active:translate-x-px active:translate-y-px [&_svg]:size-4",
