@@ -348,7 +348,7 @@ results view never shows a blocking/error state.
       the not-found CTA as a plain `<Link>` with `buttonVariants()` instead.
       Verified `notFound()`'s thrown digest (`NEXT_HTTP_ERROR_FALLBACK;404`)
       directly against this Next version rather than assuming.
-- [ ] Rewrite `src/app/page.tsx` landing page
+- [x] Rewrite `src/app/page.tsx` landing page
 - [ ] Wire tests for every acceptance criterion (fill any gaps found while
       implementing)
 - [ ] Update `CLAUDE.md`: fix "6 options" → "7 majors"; document required
