@@ -6,9 +6,10 @@ const selectMock = vi.fn(() => ({ maybeSingle: maybeSingleMock }));
 const eqMock = vi.fn(() => ({ select: selectMock }));
 const updateMock = vi.fn(() => ({ eq: eqMock }));
 const fromMock = vi.fn(() => ({ insert: insertMock, update: updateMock }));
+const getSupabaseClientMock = vi.fn(() => ({ from: fromMock }));
 
 vi.mock("./client", () => ({
-  getSupabaseClient: () => ({ from: fromMock }),
+  getSupabaseClient: () => getSupabaseClientMock(),
 }));
 
 const { saveQuizResult, subscribeToUpdates } = await import("./actions");
@@ -25,6 +26,7 @@ describe("saveQuizResult", () => {
   beforeEach(() => {
     insertMock.mockReset();
     fromMock.mockClear();
+    getSupabaseClientMock.mockReset().mockReturnValue({ from: fromMock });
   });
 
   test("inserts into quiz_results with no email field at all", async () => {
@@ -43,6 +45,14 @@ describe("saveQuizResult", () => {
     const result = await saveQuizResult(baseInput);
     expect(result).toEqual({ id: baseInput.id, saved: false });
   });
+
+  test("reports saved: false instead of rejecting when the client can't even be constructed", async () => {
+    getSupabaseClientMock.mockImplementation(() => {
+      throw new Error("Missing SUPABASE_URL or SUPABASE_ANON_KEY environment variables.");
+    });
+    const result = await saveQuizResult(baseInput);
+    expect(result).toEqual({ id: baseInput.id, saved: false });
+  });
 });
 
 describe("subscribeToUpdates", () => {
@@ -50,6 +60,7 @@ describe("subscribeToUpdates", () => {
     updateMock.mockClear();
     eqMock.mockClear();
     maybeSingleMock.mockReset();
+    getSupabaseClientMock.mockReset().mockReturnValue({ from: fromMock });
   });
 
   test("rejects a malformed email before running any query", async () => {
@@ -69,6 +80,14 @@ describe("subscribeToUpdates", () => {
 
   test("reports saved: false when RLS matches no rows (already subscribed or unknown id)", async () => {
     maybeSingleMock.mockResolvedValue({ data: null, error: null });
+    const result = await subscribeToUpdates(baseInput.id, "student@example.com");
+    expect(result).toEqual({ saved: false });
+  });
+
+  test("reports saved: false instead of rejecting when the client can't even be constructed", async () => {
+    getSupabaseClientMock.mockImplementation(() => {
+      throw new Error("Missing SUPABASE_URL or SUPABASE_ANON_KEY environment variables.");
+    });
     const result = await subscribeToUpdates(baseInput.id, "student@example.com");
     expect(result).toEqual({ saved: false });
   });

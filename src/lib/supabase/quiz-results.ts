@@ -19,20 +19,27 @@ export interface PublicQuizResult {
 }
 
 export async function getQuizResultById(id: string): Promise<PublicQuizResult | null> {
-  const { data, error } = await getSupabaseClient()
-    .from("quiz_results_public")
-    .select("id, created_at, variant, answers, scores, top_majors")
-    .eq("id", id)
-    .maybeSingle();
+  try {
+    const { data, error } = await getSupabaseClient()
+      .from("quiz_results_public")
+      .select("id, created_at, variant, answers, scores, top_majors")
+      .eq("id", id)
+      .maybeSingle();
 
-  if (error || !data) return null;
+    if (error || !data) return null;
 
-  return {
-    id: data.id,
-    createdAt: data.created_at,
-    variant: data.variant,
-    answers: data.answers,
-    scores: data.scores,
-    topMajors: data.top_majors,
-  };
+    return {
+      id: data.id,
+      createdAt: data.created_at,
+      variant: data.variant,
+      answers: data.answers,
+      scores: data.scores,
+      topMajors: data.top_majors,
+    };
+  } catch {
+    // getSupabaseClient() throws if env vars are missing/misconfigured -
+    // that should degrade to the same not-found page as an unknown id, not
+    // crash the whole route with an unhandled render error.
+    return null;
+  }
 }

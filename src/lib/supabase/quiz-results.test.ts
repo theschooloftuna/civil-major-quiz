@@ -4,9 +4,10 @@ const maybeSingleMock = vi.fn();
 const eqMock = vi.fn(() => ({ maybeSingle: maybeSingleMock }));
 const selectMock = vi.fn(() => ({ eq: eqMock }));
 const fromMock = vi.fn(() => ({ select: selectMock }));
+const getSupabaseClientMock = vi.fn(() => ({ from: fromMock }));
 
 vi.mock("./client", () => ({
-  getSupabaseClient: () => ({ from: fromMock }),
+  getSupabaseClient: () => getSupabaseClientMock(),
 }));
 
 const { getQuizResultById } = await import("./quiz-results");
@@ -15,6 +16,7 @@ describe("getQuizResultById", () => {
   beforeEach(() => {
     maybeSingleMock.mockReset();
     fromMock.mockClear();
+    getSupabaseClientMock.mockReset().mockReturnValue({ from: fromMock });
   });
 
   test("reads from the quiz_results_public view, not the base table", async () => {
@@ -62,6 +64,13 @@ describe("getQuizResultById", () => {
 
   test("returns null on a query error instead of throwing", async () => {
     maybeSingleMock.mockResolvedValue({ data: null, error: { message: "boom" } });
+    expect(await getQuizResultById("abc")).toBeNull();
+  });
+
+  test("returns null instead of crashing the page when the client can't even be constructed", async () => {
+    getSupabaseClientMock.mockImplementation(() => {
+      throw new Error("Missing SUPABASE_URL or SUPABASE_ANON_KEY environment variables.");
+    });
     expect(await getQuizResultById("abc")).toBeNull();
   });
 });

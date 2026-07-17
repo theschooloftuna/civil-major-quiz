@@ -84,4 +84,41 @@ describe("SubmitPanel", () => {
     expect(subscribeToUpdatesMock).toHaveBeenCalledWith(baseProps.resultId, "student@example.com");
     expect(await screen.findByText(/you're subscribed/i)).toBeInTheDocument();
   });
+
+  test("retries a failed save in the background and recovers without ever erroring", async () => {
+    vi.useFakeTimers();
+    saveQuizResultMock
+      .mockResolvedValueOnce({ id: baseProps.resultId, saved: false })
+      .mockResolvedValueOnce({ id: baseProps.resultId, saved: false })
+      .mockResolvedValueOnce({ id: baseProps.resultId, saved: true });
+
+    render(<SubmitPanel {...baseProps} onRetake={vi.fn()} />);
+
+    await vi.advanceTimersByTimeAsync(1500);
+    await vi.advanceTimersByTimeAsync(1500);
+    // Retry delays are done; switch to real timers so findBy's own polling
+    // (which relies on setTimeout) can settle the final state update.
+    vi.useRealTimers();
+
+    expect(await screen.findByRole("button", { name: /copy link/i })).not.toBeDisabled();
+    expect(saveQuizResultMock).toHaveBeenCalledTimes(3);
+  });
+
+  test("shows a non-blocking 'link isn't ready' state if every retry fails", async () => {
+    vi.useFakeTimers();
+    saveQuizResultMock.mockResolvedValue({ id: baseProps.resultId, saved: false });
+
+    render(<SubmitPanel {...baseProps} onRetake={vi.fn()} />);
+
+    await vi.advanceTimersByTimeAsync(1500);
+    await vi.advanceTimersByTimeAsync(1500);
+    vi.useRealTimers();
+
+    const linkButton = await screen.findByRole("button", { name: /link isn't ready/i });
+    expect(linkButton).toBeDisabled();
+    expect(saveQuizResultMock).toHaveBeenCalledTimes(3);
+    // The rest of the UI stays usable even though the save never succeeded.
+    expect(screen.getByRole("button", { name: /retake quiz/i })).not.toBeDisabled();
+    expect(screen.getByRole("button", { name: /^subscribe$/i })).not.toBeDisabled();
+  });
 });

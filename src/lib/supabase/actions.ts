@@ -28,17 +28,24 @@ export interface SaveQuizResultOutput {
  * enforcement boundary, not this function.
  */
 export async function saveQuizResult(input: SaveQuizResultInput): Promise<SaveQuizResultOutput> {
-  const { error } = await getSupabaseClient()
-    .from("quiz_results")
-    .insert({
-      id: input.id,
-      variant: input.variant,
-      answers: input.answers,
-      scores: input.scores,
-      top_majors: input.topMajors,
-    });
+  try {
+    const { error } = await getSupabaseClient()
+      .from("quiz_results")
+      .insert({
+        id: input.id,
+        variant: input.variant,
+        answers: input.answers,
+        scores: input.scores,
+        top_majors: input.topMajors,
+      });
 
-  return { id: input.id, saved: !error };
+    return { id: input.id, saved: !error };
+  } catch {
+    // getSupabaseClient() throws if env vars are missing/misconfigured -
+    // that's a deployment problem, not something the quiz-taker should ever
+    // see as a crash. Same contract as a failed insert: caller retries.
+    return { id: input.id, saved: false };
+  }
 }
 
 export interface SubscribeOutput {
@@ -58,12 +65,16 @@ export async function subscribeToUpdates(id: string, email: string): Promise<Sub
     return { saved: false };
   }
 
-  const { data, error } = await getSupabaseClient()
-    .from("quiz_results")
-    .update({ email })
-    .eq("id", id)
-    .select("id")
-    .maybeSingle();
+  try {
+    const { data, error } = await getSupabaseClient()
+      .from("quiz_results")
+      .update({ email })
+      .eq("id", id)
+      .select("id")
+      .maybeSingle();
 
-  return { saved: !error && data != null };
+    return { saved: !error && data != null };
+  } catch {
+    return { saved: false };
+  }
 }

@@ -38,6 +38,23 @@ describe("QuizFlow", () => {
     expect(screen.getAllByRole("group")).toHaveLength(1);
   });
 
+  test("a previously selected answer still shows as selected after Prev then revisiting", async () => {
+    const user = userEvent.setup();
+    render(<QuizFlow variant="choice" />);
+
+    const [firstOption] = screen.getAllByRole("button", { pressed: false });
+    const firstOptionLabel = firstOption.textContent;
+    await user.click(firstOption);
+    await user.click(screen.getByRole("button", { name: "Next" }));
+
+    const [secondQuestionOption] = screen.getAllByRole("button", { pressed: false });
+    await user.click(secondQuestionOption);
+    await user.click(screen.getByRole("button", { name: "Prev" }));
+
+    const selectedOption = screen.getByRole("button", { pressed: true });
+    expect(selectedOption.textContent).toBe(firstOptionLabel);
+  });
+
   test("progress bar fill grows as questions are answered", async () => {
     const user = userEvent.setup();
     render(<QuizFlow variant="choice" />);

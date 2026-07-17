@@ -349,8 +349,19 @@ results view never shows a blocking/error state.
       Verified `notFound()`'s thrown digest (`NEXT_HTTP_ERROR_FALLBACK;404`)
       directly against this Next version rather than assuming.
 - [x] Rewrite `src/app/page.tsx` landing page
-- [ ] Wire tests for every acceptance criterion (fill any gaps found while
-      implementing)
+- [x] Wire tests for every acceptance criterion (fill any gaps found while
+      implementing) — added missing coverage for the save-retry-then-recover
+      /save-retry-then-give-up ACs and for answer persistence at the
+      component (not just hook) level. A full browser walkthrough (per
+      CLAUDE.md/session convention of verifying UI changes live, not just
+      via vitest) surfaced two real bugs neither test suite nor `pnpm build`
+      caught: `saveQuizResult` and `getQuizResultById` let a thrown error
+      from `getSupabaseClient()` (e.g. missing env vars) propagate instead
+      of degrading gracefully — the submit panel's "Copy link" got stuck on
+      "Preparing link…" forever, and `/result/[id]` hard-crashed the page
+      instead of showing the not-found state. Both wrapped in try/catch now,
+      with regression tests forcing `getSupabaseClient` to throw and
+      asserting `{saved: false}` / `null` rather than a rejection.
 - [x] Update `CLAUDE.md`: fix "6 options" → "7 majors"; document required
       env vars and the Supabase migration location
 
