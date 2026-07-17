@@ -267,7 +267,10 @@ results view never shows a blocking/error state.
       `src/components/quiz/scale-question.tsx`
 - [ ] `src/components/quiz/quiz-flow.tsx` wiring hook + question renderers
       + progress bar + Prev/Next/Submit
-- [ ] `src/components/quiz/results-list.tsx`
+- [x] `src/components/quiz/results-list.tsx` (built before `quiz-flow.tsx`
+      instead of after, since quiz-flow needs to render it — the plan listed
+      them in an order that had quiz-flow depending on a file that didn't
+      exist yet; same deliverables, just resequenced)
 - [ ] `src/components/quiz/submit-panel.tsx` (email opt-in, retake, copy
       link, background save + retry)
 - [ ] `src/app/quiz/page.tsx` + `src/app/quiz/scale/page.tsx`
