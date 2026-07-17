@@ -338,7 +338,10 @@ results view never shows a blocking/error state.
       was never registered (vitest.config.mts doesn't set `test.globals`),
       so multi-render component test files were leaking DOM across tests —
       added an explicit `afterEach(cleanup)` in vitest.setup.ts.
-- [ ] `src/app/quiz/page.tsx` + `src/app/quiz/scale/page.tsx`
+- [x] `src/app/quiz/page.tsx` + `src/app/quiz/scale/page.tsx` — verified with
+      a real `pnpm build`, not just vitest, since this is the first actual
+      route wiring in the feature (Server Action boundary, RSC/client
+      split)
 - [ ] `src/app/result/[id]/page.tsx` + `not-found.tsx`
 - [ ] Rewrite `src/app/page.tsx` landing page
 - [ ] Wire tests for every acceptance criterion (fill any gaps found while
