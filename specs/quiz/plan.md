@@ -246,7 +246,7 @@ results view never shows a blocking/error state.
 - [x] `src/lib/majors.ts` + `src/lib/quiz-topics.ts` (content, no logic yet)
 - [x] `src/lib/quiz-data-choice.ts` + `src/lib/quiz-data-scale.ts` + test
       asserting matching `topicId`s across variants
-- [ ] `src/lib/scoring.ts` (`computeResults`, `getTopMajors`) + unit tests
+- [x] `src/lib/scoring.ts` (`computeResults`, `getTopMajors`) + unit tests
 - [ ] Add `@supabase/supabase-js`; `src/lib/supabase/client.ts`
 - [ ] `supabase/migrations/0001_quiz_results.sql`; `.env.example`
 - [ ] `src/lib/supabase/quiz-results.ts` (`saveQuizResult`,
