@@ -109,7 +109,7 @@ function returns `null` on any fetch/config failure (mirroring
 page branches on that distinction to show the right message.
 
 ## Files to add / change
-- `.env.example` — add `SUPABASE_SERVICE_ROLE_KEY`, `ANALYTICS_PASSCODE`.
+- `.env.example` — add `SUPABASE_SECRET_KEY`, `ANALYTICS_PASSCODE`.
 - `CLAUDE.md` — extend "Environment variables" section with the two new
   vars and a one-line note on what they gate.
 - `src/lib/supabase/admin-client.ts` — new. `getSupabaseAdminClient()`,
@@ -187,7 +187,7 @@ page branches on that distinction to show the right message.
 - No database migration. Reads `public.quiz_results` directly via a new
   service-role client, bypassing RLS (RLS is unaffected/unchanged for the
   anon path).
-- Two new required env vars for this feature: `SUPABASE_SERVICE_ROLE_KEY`,
+- Two new required env vars for this feature: `SUPABASE_SECRET_KEY`,
   `ANALYTICS_PASSCODE`. Neither is prefixed `NEXT_PUBLIC_`; both stay
   server-only.
 - New signed cookie: `analytics_session` (httpOnly, 30-day `maxAge`, scoped
@@ -238,7 +238,7 @@ page branches on that distinction to show the right message.
 
 ## Task checklist
 > Implement works these top-to-bottom, committing after each.
-- [x] Add `SUPABASE_SERVICE_ROLE_KEY` / `ANALYTICS_PASSCODE` to
+- [x] Add `SUPABASE_SECRET_KEY` / `ANALYTICS_PASSCODE` to
       `.env.example` and `CLAUDE.md`; add `src/lib/supabase/admin-client.ts`.
 - [x] Add `src/lib/analytics/session.ts` + tests.
 - [x] Add `src/lib/analytics/auth.ts` + `src/lib/analytics/actions.ts` +
@@ -260,7 +260,7 @@ page branches on that distinction to show the right message.
       pagination at last page, against a real (or seeded) Supabase project.
       (Verified login/logout/error-state flow via a real browser; the
       populated-dashboard visual render was not manually checked - no
-      `SUPABASE_SERVICE_ROLE_KEY` was available locally. Covered instead by
+      `SUPABASE_SECRET_KEY` was available locally. Covered instead by
       the `page.test.tsx` populated-state assertions.)
 - [x] `pnpm lint && pnpm typecheck && pnpm test && pnpm build`. Production
       build surfaced that `/analytics` was being statically prerendered and

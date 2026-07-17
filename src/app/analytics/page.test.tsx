@@ -66,7 +66,7 @@ describe("AnalyticsPage", () => {
     render(jsx);
 
     expect(screen.getByText(/analytics unavailable/i)).toBeInTheDocument();
-    expect(screen.getByText(/SUPABASE_SERVICE_ROLE_KEY/)).toBeInTheDocument();
+    expect(screen.getByText(/SUPABASE_SECRET_KEY/)).toBeInTheDocument();
     // A valid session with a config error still needs a way out other than
     // waiting for the cookie to expire.
     expect(screen.getByRole("button", { name: /log out/i })).toBeInTheDocument();

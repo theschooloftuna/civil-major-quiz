@@ -25,7 +25,7 @@ hand.
 - Access is gated by a shared passcode (not full user auth): a login form
   sets a signed, httpOnly session cookie valid 30 days; a logout control
   clears it.
-- Server-side data access uses a new `SUPABASE_SERVICE_ROLE_KEY` (server-only)
+- Server-side data access uses a new `SUPABASE_SECRET_KEY` (server-only)
   to read `quiz_results` directly, including `email` — bypassing RLS, since
   the existing anon key/view intentionally cannot read `email` or the base
   table.
@@ -76,7 +76,7 @@ hand.
 - [ ] The participant table is sorted newest-first, paginated (fixed page
       size), and each row shows timestamp, variant, top major, and email
       (blank if not opted in).
-- [ ] If `SUPABASE_SERVICE_ROLE_KEY` is not configured, `/analytics` (after
+- [ ] If `SUPABASE_SECRET_KEY` is not configured, `/analytics` (after
       passcode entry) shows a clear "analytics unavailable" message instead
       of crashing or showing a generic error page.
 - [ ] With zero participants in the database, the dashboard renders with
@@ -90,7 +90,7 @@ hand.
 - A participant with a tied top match (more than one major at the highest
   score) — table shows only the single highest-scored major per the
   existing `top_majors` ordering (first entry).
-- Missing/misconfigured `SUPABASE_SERVICE_ROLE_KEY` at runtime: page shows a
+- Missing/misconfigured `SUPABASE_SECRET_KEY` at runtime: page shows a
   config-error state (post-passcode), not a crash.
 - Expired session cookie: treated the same as no session — passcode form is
   shown again.
@@ -98,7 +98,7 @@ hand.
   must still work correctly at the last page (partial page of results).
 
 ## Constraints & dependencies
-- New env var `SUPABASE_SERVICE_ROLE_KEY` (server-only, never sent to the
+- New env var `SUPABASE_SECRET_KEY` (server-only, never sent to the
   client) — must be documented in `.env.example` and the CLAUDE.md
   environment variables section. This key bypasses RLS entirely, so all
   code using it must live in server-only modules (`import "server-only"`,

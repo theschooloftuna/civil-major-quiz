@@ -66,7 +66,7 @@ describe("getAnalyticsRows", () => {
 
   test("returns null instead of crashing the page when the admin client can't even be constructed", async () => {
     getSupabaseAdminClientMock.mockImplementation(() => {
-      throw new Error("Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY environment variables.");
+      throw new Error("Missing SUPABASE_URL or SUPABASE_SECRET_KEY environment variables.");
     });
     expect(await getAnalyticsRows()).toBeNull();
   });

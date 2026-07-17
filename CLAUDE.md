@@ -96,7 +96,7 @@ quiz submissions still show a result locally but never get a working
 The `/analytics` dashboard (participant stats, trends) needs two more,
 server-only, vars — without them the page shows a config-error state
 instead of crashing:
-- `SUPABASE_SERVICE_ROLE_KEY` — bypasses RLS to read participant rows
+- `SUPABASE_SECRET_KEY` — bypasses RLS to read participant rows
   (including `email`), which the anon key structurally cannot see.
 - `ANALYTICS_PASSCODE` — gates the page and doubles as the analytics
   session cookie's signing secret; rotating it logs out all sessions.
