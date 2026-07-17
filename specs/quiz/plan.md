@@ -260,7 +260,7 @@ results view never shows a blocking/error state.
       (`QuizVariant` type) and `src/lib/email.ts` (`isValidEmail`, shared by
       the server action and the future client-side form) — small extractions
       to avoid duplicating the email regex, not scope additions.
-- [ ] Add shadcn `checkbox` and `input` primitives via the CLI
+- [x] Add shadcn `checkbox` and `input` primitives via the CLI
 - [ ] `src/hooks/use-quiz-flow.ts` + unit tests
 - [ ] `src/components/quiz/progress-bar.tsx`
 - [ ] `src/components/quiz/choice-question.tsx` +
