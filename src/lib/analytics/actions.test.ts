@@ -56,6 +56,17 @@ describe("loginToAnalytics", () => {
     expect(result).toEqual({ success: false });
     expect(cookieStore.has(ANALYTICS_SESSION_COOKIE)).toBe(false);
   });
+
+  test("tolerates a trailing newline in the configured passcode (e.g. pasted into a host's env var UI)", async () => {
+    vi.stubEnv("ANALYTICS_PASSCODE", "correct-passcode\n");
+    const result = await loginToAnalytics("correct-passcode");
+    expect(result).toEqual({ success: true });
+  });
+
+  test("tolerates surrounding whitespace on the submitted passcode", async () => {
+    const result = await loginToAnalytics("  correct-passcode  ");
+    expect(result).toEqual({ success: true });
+  });
 });
 
 describe("logoutFromAnalytics", () => {

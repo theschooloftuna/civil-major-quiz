@@ -10,7 +10,8 @@ vi.mock("next/headers", () => ({
   cookies: async () => ({ get: getMock }),
 }));
 
-const { ANALYTICS_SESSION_COOKIE, hasValidAnalyticsSession } = await import("./auth");
+const { ANALYTICS_SESSION_COOKIE, getAnalyticsPasscode, hasValidAnalyticsSession } =
+  await import("./auth");
 const { createSessionToken } = await import("./session");
 
 describe("hasValidAnalyticsSession", () => {
@@ -47,5 +48,21 @@ describe("hasValidAnalyticsSession", () => {
     vi.unstubAllEnvs();
 
     expect(await hasValidAnalyticsSession()).toBe(false);
+  });
+});
+
+describe("getAnalyticsPasscode", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  test("trims a trailing newline some hosting platforms' env var UIs don't strip", () => {
+    vi.stubEnv("ANALYTICS_PASSCODE", "correct-passcode\n");
+    expect(getAnalyticsPasscode()).toBe("correct-passcode");
+  });
+
+  test("returns undefined for an empty or whitespace-only value", () => {
+    vi.stubEnv("ANALYTICS_PASSCODE", "   ");
+    expect(getAnalyticsPasscode()).toBeUndefined();
   });
 });

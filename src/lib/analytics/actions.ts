@@ -2,7 +2,7 @@
 
 import { cookies } from "next/headers";
 import { createSessionToken } from "./session";
-import { ANALYTICS_SESSION_COOKIE, ANALYTICS_SESSION_COOKIE_PATH } from "./auth";
+import { ANALYTICS_SESSION_COOKIE, ANALYTICS_SESSION_COOKIE_PATH, getAnalyticsPasscode } from "./auth";
 
 const SESSION_DURATION_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 
@@ -16,8 +16,8 @@ export interface LoginResult {
  * immediately invalidates every outstanding session - not a bug.
  */
 export async function loginToAnalytics(passcode: string): Promise<LoginResult> {
-  const expected = process.env.ANALYTICS_PASSCODE;
-  if (!expected || passcode !== expected) {
+  const expected = getAnalyticsPasscode();
+  if (!expected || passcode.trim() !== expected) {
     return { success: false };
   }
 
