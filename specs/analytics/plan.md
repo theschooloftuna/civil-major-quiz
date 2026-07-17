@@ -253,7 +253,7 @@ page branches on that distinction to show the right message.
       `analytics/config-error.tsx`.
 - [x] Add `analytics/stat-tile.tsx`, `analytics/major-distribution-chart.tsx`,
       `analytics/trend-chart.tsx`, `analytics/participants-table.tsx`.
-- [ ] Add `src/app/analytics/page.tsx` wiring gate → fetch → dashboard;
+- [x] Add `src/app/analytics/page.tsx` wiring gate → fetch → dashboard;
       add `page.test.tsx` covering all four render states.
 - [ ] Manual pass: `pnpm dev`, walk through wrong passcode → correct
       passcode → dashboard → logout → session persists across reload →
