@@ -255,10 +255,19 @@ page branches on that distinction to show the right message.
       `analytics/trend-chart.tsx`, `analytics/participants-table.tsx`.
 - [x] Add `src/app/analytics/page.tsx` wiring gate → fetch → dashboard;
       add `page.test.tsx` covering all four render states.
-- [ ] Manual pass: `pnpm dev`, walk through wrong passcode → correct
+- [x] Manual pass: `pnpm dev`, walk through wrong passcode → correct
       passcode → dashboard → logout → session persists across reload →
       pagination at last page, against a real (or seeded) Supabase project.
-- [ ] `pnpm lint && pnpm typecheck && pnpm test && pnpm build`.
+      (Verified login/logout/error-state flow via a real browser; the
+      populated-dashboard visual render was not manually checked - no
+      `SUPABASE_SERVICE_ROLE_KEY` was available locally. Covered instead by
+      the `page.test.tsx` populated-state assertions.)
+- [x] `pnpm lint && pnpm typecheck && pnpm test && pnpm build`. Production
+      build surfaced that `/analytics` was being statically prerendered and
+      served from a shared cache (`x-nextjs-cache: HIT`) despite reading a
+      per-request cookie - added `export const dynamic = "force-dynamic"`
+      and confirmed via `next build` + `next start` that the route is now
+      `ƒ (Dynamic)` with `Cache-Control: private, no-store`.
 
 ## Risks & rollout
 - **Passcode-as-signing-secret coupling**: rotating `ANALYTICS_PASSCODE`

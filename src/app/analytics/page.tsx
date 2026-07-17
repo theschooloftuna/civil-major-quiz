@@ -20,6 +20,13 @@ export const metadata: Metadata = {
   title: "Analytics | Civil Major Quiz",
 };
 
+// hasValidAnalyticsSession() reads a per-request cookie, but Next.js's
+// implicit dynamic-rendering detection was observed (via a production
+// build) to still statically prerender and cache this route instead of
+// bailing out - force it explicitly so the passcode gate actually runs
+// on every request instead of being served from a stale static cache.
+export const dynamic = "force-dynamic";
+
 const PARTICIPANTS_PAGE_SIZE = 50;
 
 interface AnalyticsPageProps {
