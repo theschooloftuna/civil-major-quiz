@@ -1,20 +1,10 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
-import { ConfigError } from "@/components/analytics/config-error";
 import { LoginForm } from "@/components/analytics/login-form";
 import { LogoutButton } from "@/components/analytics/logout-button";
-import { MajorDistributionChart } from "@/components/analytics/major-distribution-chart";
-import { ParticipantsTable } from "@/components/analytics/participants-table";
-import { StatTile } from "@/components/analytics/stat-tile";
-import { TrendChart } from "@/components/analytics/trend-chart";
+import { buttonVariants } from "@/components/theme-custom/button";
 import { hasValidAnalyticsSession } from "@/lib/analytics/auth";
-import {
-  computeDailyTrend,
-  computeMajorDistribution,
-  computeSummary,
-  paginateRows,
-} from "@/lib/analytics/stats";
-import { getAnalyticsRows } from "@/lib/supabase/analytics";
 
 export const metadata: Metadata = {
   title: "Analytics | Civil Major Quiz",
@@ -27,44 +17,17 @@ export const metadata: Metadata = {
 // on every request instead of being served from a stale static cache.
 export const dynamic = "force-dynamic";
 
-const PARTICIPANTS_PAGE_SIZE = 50;
-
-interface AnalyticsPageProps {
-  searchParams: Promise<{ page?: string }>;
-}
-
-export default async function AnalyticsPage({ searchParams }: AnalyticsPageProps) {
+/**
+ * Hub only. Deliberately fetches nothing: opening this page used to pull
+ * every quiz row, which made checking the newsletter list expensive and
+ * still didn't show it.
+ */
+export default async function AnalyticsPage() {
   const hasSession = await hasValidAnalyticsSession();
 
   if (!hasSession) {
     return <LoginForm />;
   }
-
-  const rows = await getAnalyticsRows();
-
-  // The logout control lives here, outside the rows === null branch below,
-  // so a valid session that hits a config error still has a way out other
-  // than waiting for the cookie to expire.
-  if (rows === null) {
-    return (
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-12">
-        <div className="flex items-center justify-end">
-          <LogoutButton />
-        </div>
-        <ConfigError />
-      </div>
-    );
-  }
-
-  const { page: pageParam } = await searchParams;
-  const summary = computeSummary(rows);
-  const majorDistribution = computeMajorDistribution(rows);
-  const dailyTrend = computeDailyTrend(rows);
-  const { pageRows, currentPage, totalPages } = paginateRows(
-    rows,
-    Number(pageParam ?? "1"),
-    PARTICIPANTS_PAGE_SIZE
-  );
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-12">
@@ -73,34 +36,14 @@ export default async function AnalyticsPage({ searchParams }: AnalyticsPageProps
         <LogoutButton />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatTile label="Total participants" value={String(summary.total)} />
-        <StatTile
-          label="Quiz variant"
-          value={`${summary.choiceCount} / ${summary.scaleCount}`}
-          sublabel="Choice / Scale"
-        />
-        <StatTile
-          label="Email opt-in"
-          value={String(summary.optInCount)}
-          sublabel={`${summary.optInPercentage.toFixed(0)}% of participants`}
-        />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Link href="/analytics/quiz" className={buttonVariants({ size: "lg" })}>
+          Quiz
+        </Link>
+        <Link href="/analytics/subscription" className={buttonVariants({ size: "lg" })}>
+          Subscription
+        </Link>
       </div>
-
-      <section className="flex flex-col gap-4">
-        <h2 className="text-xl font-normal text-foreground">Participation, last 30 days</h2>
-        <TrendChart data={dailyTrend} />
-      </section>
-
-      <section className="flex flex-col gap-4">
-        <h2 className="text-xl font-normal text-foreground">Major match distribution</h2>
-        <MajorDistributionChart data={majorDistribution} />
-      </section>
-
-      <section className="flex flex-col gap-4">
-        <h2 className="text-xl font-normal text-foreground">Participants</h2>
-        <ParticipantsTable rows={pageRows} currentPage={currentPage} totalPages={totalPages} />
-      </section>
     </div>
   );
 }

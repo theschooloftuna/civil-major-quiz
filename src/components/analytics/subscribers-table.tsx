@@ -9,62 +9,66 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/theme-custom/table";
-import { MAJORS } from "@/lib/majors";
-import type { AnalyticsRow } from "@/lib/supabase/analytics";
+import type { SubscriberRow } from "@/lib/supabase/subscribers";
 import { cn } from "@/lib/utils";
 
-const MAJOR_NAME_BY_ID = new Map(MAJORS.map((major) => [major.id, major.name]));
-
-interface ParticipantsTableProps {
-  rows: AnalyticsRow[];
+interface SubscribersTableProps {
+  rows: SubscriberRow[];
   currentPage: number;
   totalPages: number;
-  /** Route the pagination links point at. Required: this table moved from
-   * /analytics to /analytics/quiz, and a hardcoded path would silently send
-   * page 2 back to the hub. */
   basePath: string;
 }
+
+const SOURCE_LABELS: Record<SubscriberRow["source"], string> = {
+  quiz: "Quiz",
+  newsletter_page: "Newsletter page",
+};
 
 function formatTimestamp(value: string) {
   return new Date(value).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
 }
 
-function ParticipantsTable({
-  rows,
-  currentPage,
-  totalPages,
-  basePath,
-}: ParticipantsTableProps) {
+function SubscribersTable({ rows, currentPage, totalPages, basePath }: SubscribersTableProps) {
   return (
     <div className="flex flex-col gap-4">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Submitted</TableHead>
-            <TableHead>Variant</TableHead>
-            <TableHead>Top major</TableHead>
             <TableHead>Email</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Source</TableHead>
+            <TableHead>Joined</TableHead>
+            <TableHead>Unsubscribed on</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {rows.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={4} className="py-8 text-center text-muted-foreground">
-                No participants yet.
+              <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
+                No subscribers yet.
               </TableCell>
             </TableRow>
           ) : (
-            rows.map((row) => {
-              const topMajorId = row.topMajors[0]?.majorId;
-              return (
-                <TableRow key={row.id}>
-                  <TableCell>{formatTimestamp(row.createdAt)}</TableCell>
-                  <TableCell className="capitalize">{row.variant}</TableCell>
-                  <TableCell>{topMajorId ? MAJOR_NAME_BY_ID.get(topMajorId) : "—"}</TableCell>
-                  <TableCell>{row.email ?? ""}</TableCell>
-                </TableRow>
-              );
-            })
+            rows.map((row) => (
+              <TableRow key={row.id}>
+                <TableCell>{row.email}</TableCell>
+                <TableCell>
+                  <span
+                    className={cn(
+                      "font-mono text-xs font-semibold uppercase tracking-wide",
+                      row.status === "subscribed" ? "text-green" : "text-muted-foreground"
+                    )}
+                  >
+                    {row.status}
+                  </span>
+                </TableCell>
+                <TableCell>{SOURCE_LABELS[row.source]}</TableCell>
+                <TableCell>{formatTimestamp(row.createdAt)}</TableCell>
+                <TableCell>
+                  {row.unsubscribedAt ? formatTimestamp(row.unsubscribedAt) : "—"}
+                </TableCell>
+              </TableRow>
+            ))
           )}
         </TableBody>
       </Table>
@@ -100,4 +104,4 @@ function ParticipantsTable({
   );
 }
 
-export { ParticipantsTable };
+export { SubscribersTable };

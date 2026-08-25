@@ -81,8 +81,14 @@ export interface DailyTrendOptions {
 
 /** Zero-filled daily submission counts, oldest to newest, bucketed by UTC
  * calendar day so results are deterministic regardless of server timezone. */
+/** Accepts anything with a `createdAt` timestamp - quiz rows and subscriber
+ * rows both qualify - since the bucketing never looks at any other field. */
+export interface DatedRow {
+  createdAt: string;
+}
+
 export function computeDailyTrend(
-  rows: AnalyticsRow[],
+  rows: DatedRow[],
   { days = 30, now = new Date() }: DailyTrendOptions = {}
 ): DailyTrendPoint[] {
   const countsByDay = new Map<string, number>();

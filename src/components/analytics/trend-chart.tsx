@@ -12,18 +12,20 @@ import type { DailyTrendPoint } from "@/lib/analytics/stats";
 
 interface TrendChartProps {
   data: DailyTrendPoint[];
+  /** Series label in the tooltip. Defaults to the quiz dashboard's wording. */
+  label?: string;
 }
-
-const chartConfig = {
-  count: { label: "Submissions", color: "var(--chart-1)" },
-} satisfies ChartConfig;
 
 function formatDateLabel(date: string) {
   const [, month, day] = date.split("-");
   return `${month}/${day}`;
 }
 
-function TrendChart({ data }: TrendChartProps) {
+function TrendChart({ data, label = "Submissions" }: TrendChartProps) {
+  const chartConfig = {
+    count: { label, color: "var(--chart-1)" },
+  } satisfies ChartConfig;
+
   return (
     <ChartContainer config={chartConfig} className="aspect-auto h-64 w-full">
       <LineChart data={data} margin={{ left: 12, right: 12 }}>

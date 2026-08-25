@@ -165,3 +165,17 @@ describe("paginateRows", () => {
     expect(result).toEqual({ pageRows: [], totalPages: 1, currentPage: 1 });
   });
 });
+
+describe("computeDailyTrend accepts any dated row", () => {
+  it("buckets a bare { createdAt } shape, so subscriber rows can reuse it", () => {
+    const trend = computeDailyTrend([{ createdAt: "2026-08-25T12:00:00Z" }], {
+      days: 2,
+      now: new Date("2026-08-26T00:00:00Z"),
+    });
+
+    expect(trend).toEqual([
+      { date: "2026-08-25", count: 1 },
+      { date: "2026-08-26", count: 0 },
+    ]);
+  });
+});
