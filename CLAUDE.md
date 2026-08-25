@@ -112,6 +112,15 @@ re-derived:
   when unset, signatures are skipped with a warning.
 - `IG_ALLOW_SELF_COMMENTS` — optional testing escape hatch.
 
+The newsletter list (`/newsletter`, `/unsubscribe/<token>`) needs no new env
+vars — it uses the existing `SUPABASE_URL` / `SUPABASE_ANON_KEY` pair. It
+does need `supabase/migrations/0005` applied, and `IG_REPLY_TEXT` repointed
+at `/newsletter` for the Instagram DM to lead anywhere useful.
+
+Database-level behavior that Vitest can't reach (grants, transaction
+atomicity, constraints, backfill idempotency) is asserted by the scripts in
+`supabase/checks/`, run by hand against Supabase after a migration.
+
 ## Architecture rules
 - Quiz domain logic (question set, scoring, major-matching, percentage calc)
   lives in `src/lib/`, framework-agnostic and unit-testable — components only
@@ -126,6 +135,12 @@ re-derived:
 - Route handlers stay thin: transport only (read body, gate, parse, hand
   off). Their logic lives in `src/lib/<feature>/` as pure functions —
   `src/lib/instagram/` is the reference for this.
+- Anything that writes an email address goes through a `SECURITY DEFINER`
+  Postgres function returning only a boolean — never a direct table write.
+  `supabase/migrations/0003` explains why: `anon` has no SELECT policy on
+  those tables, so a write that returns its own row can't work without
+  opening up the `email` column. `newsletter_subscribers` follows the same
+  posture (RLS on, zero policies, function-only access).
 
 ## Conventions
 - TypeScript strict mode (already on in `tsconfig.json`); no `any`.

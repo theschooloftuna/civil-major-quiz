@@ -176,8 +176,8 @@ idempotency on a second run.
 - [x] `src/app/newsletter/page.tsx` + test
 - [x] `src/components/newsletter/unsubscribe-button.tsx` + test
 - [x] `src/app/unsubscribe/[token]/page.tsx` + `not-found.tsx` + tests
-- [ ] `CLAUDE.md` update
-- [ ] Full `pnpm test && pnpm lint && pnpm typecheck && pnpm build`
+- [x] `CLAUDE.md` update
+- [x] Full `pnpm test && pnpm lint && pnpm typecheck && pnpm build`
 
 ## Risks & rollout
 - **Replacing `subscribe_quiz_result` is the one genuinely risky step** — it is
