@@ -174,8 +174,8 @@ idempotency on a second run.
 - [x] `src/lib/newsletter/actions.ts` + test
 - [x] `src/components/newsletter/newsletter-signup.tsx` + test
 - [x] `src/app/newsletter/page.tsx` + test
-- [ ] `src/components/newsletter/unsubscribe-button.tsx` + test
-- [ ] `src/app/unsubscribe/[token]/page.tsx` + `not-found.tsx` + tests
+- [x] `src/components/newsletter/unsubscribe-button.tsx` + test
+- [x] `src/app/unsubscribe/[token]/page.tsx` + `not-found.tsx` + tests
 - [ ] `CLAUDE.md` update
 - [ ] Full `pnpm test && pnpm lint && pnpm typecheck && pnpm build`
 
