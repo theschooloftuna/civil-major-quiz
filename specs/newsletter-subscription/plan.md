@@ -170,8 +170,8 @@ idempotency on a second run.
 - [x] Migration 0005: replace `subscribe_quiz_result` to dual-write
 - [x] Migration 0005: backfill from `quiz_results`, idempotent
 - [x] `supabase/checks/0005_newsletter_subscribers.sql` assertion script
-- [ ] `src/lib/supabase/newsletter.ts` + test
-- [ ] `src/lib/newsletter/actions.ts` + test
+- [x] `src/lib/supabase/newsletter.ts` + test
+- [x] `src/lib/newsletter/actions.ts` + test
 - [ ] `src/components/newsletter/newsletter-signup.tsx` + test
 - [ ] `src/app/newsletter/page.tsx` + test
 - [ ] `src/components/newsletter/unsubscribe-button.tsx` + test
