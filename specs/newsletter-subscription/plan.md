@@ -173,7 +173,7 @@ idempotency on a second run.
 - [x] `src/lib/supabase/newsletter.ts` + test
 - [x] `src/lib/newsletter/actions.ts` + test
 - [x] `src/components/newsletter/newsletter-signup.tsx` + test
-- [ ] `src/app/newsletter/page.tsx` + test
+- [x] `src/app/newsletter/page.tsx` + test
 - [ ] `src/components/newsletter/unsubscribe-button.tsx` + test
 - [ ] `src/app/unsubscribe/[token]/page.tsx` + `not-found.tsx` + tests
 - [ ] `CLAUDE.md` update
