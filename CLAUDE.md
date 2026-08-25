@@ -101,6 +101,17 @@ instead of crashing:
 - `ANALYTICS_PASSCODE` — gates the page and doubles as the analytics
   session cookie's signing secret; rotating it logs out all sessions.
 
+The Instagram comment → auto-DM webhook (`/api/instagram/webhook`) adds its
+own server-only vars — see `.env.example` for the full annotated list and
+`instagram-dm-automation.md` for the Meta-side setup that must not be
+re-derived:
+- `IG_ACCESS_TOKEN`, `IG_ACCOUNT_ID`, `IG_VERIFY_TOKEN`, `IG_TRIGGER_WORD`,
+  `IG_REPLY_TEXT` — required; without them a delivery is logged and dropped
+  rather than crashing.
+- `IG_APP_SECRET` — optional. When set, `X-Hub-Signature-256` is enforced;
+  when unset, signatures are skipped with a warning.
+- `IG_ALLOW_SELF_COMMENTS` — optional testing escape hatch.
+
 ## Architecture rules
 - Quiz domain logic (question set, scoring, major-matching, percentage calc)
   lives in `src/lib/`, framework-agnostic and unit-testable — components only
@@ -112,6 +123,9 @@ instead of crashing:
   imports (`../../`).
 - Server Components by default; add `"use client"` only where interactivity
   (answer selection, quiz progress state) requires it.
+- Route handlers stay thin: transport only (read body, gate, parse, hand
+  off). Their logic lives in `src/lib/<feature>/` as pure functions —
+  `src/lib/instagram/` is the reference for this.
 
 ## Conventions
 - TypeScript strict mode (already on in `tsconfig.json`); no `any`.
