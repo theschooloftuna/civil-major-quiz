@@ -42,7 +42,7 @@ export default function NewsletterPage() {
         width={416}
         height={493}
         priority
-        className="w-44 self-center"
+        className="w-52 self-start sm:w-56"
       />
 
       <header className="flex flex-col gap-4">
