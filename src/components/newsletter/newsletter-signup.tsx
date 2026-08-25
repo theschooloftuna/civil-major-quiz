@@ -63,8 +63,8 @@ function NewsletterSignup() {
             }}
             className="max-w-xs"
           />
-          <Button type="submit" size="lg" disabled={state === "sending"}>
-            {state === "sending" ? "Subscribing…" : "Subscribe"}
+          <Button type="submit" variant="primary" size="lg" disabled={state === "sending"}>
+            {state === "sending" ? "Joining…" : "Join the Tuna Times"}
           </Button>
         </div>
         {emailError && <FieldError>{emailError}</FieldError>}

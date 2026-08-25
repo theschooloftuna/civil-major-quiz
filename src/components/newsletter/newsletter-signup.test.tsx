@@ -19,7 +19,7 @@ describe("NewsletterSignup", () => {
     render(<NewsletterSignup />);
 
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /^subscribe$/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /join the tuna times/i })).toBeInTheDocument();
   });
 
   test("subscribes a valid address", async () => {
@@ -27,7 +27,7 @@ describe("NewsletterSignup", () => {
     render(<NewsletterSignup />);
 
     await user.type(screen.getByLabelText(/email/i), "reader@example.com");
-    await user.click(screen.getByRole("button", { name: /^subscribe$/i }));
+    await user.click(screen.getByRole("button", { name: /join the tuna times/i }));
 
     expect(subscribeToNewsletterMock).toHaveBeenCalledWith("reader@example.com");
   });
@@ -37,7 +37,7 @@ describe("NewsletterSignup", () => {
     render(<NewsletterSignup />);
 
     await user.type(screen.getByLabelText(/email/i), "reader@example.com");
-    await user.click(screen.getByRole("button", { name: /^subscribe$/i }));
+    await user.click(screen.getByRole("button", { name: /join the tuna times/i }));
 
     expect(await screen.findByText(/on the list/i)).toBeInTheDocument();
     expect(screen.queryByLabelText(/email/i)).not.toBeInTheDocument();
@@ -49,7 +49,7 @@ describe("NewsletterSignup", () => {
     render(<NewsletterSignup />);
 
     await user.type(screen.getByLabelText(/email/i), "existing@example.com");
-    await user.click(screen.getByRole("button", { name: /^subscribe$/i }));
+    await user.click(screen.getByRole("button", { name: /join the tuna times/i }));
 
     expect(await screen.findByText(/on the list/i)).toBeInTheDocument();
     expect(screen.queryByText(/already/i)).not.toBeInTheDocument();
@@ -60,7 +60,7 @@ describe("NewsletterSignup", () => {
     render(<NewsletterSignup />);
 
     await user.type(screen.getByLabelText(/email/i), "not-an-email");
-    await user.click(screen.getByRole("button", { name: /^subscribe$/i }));
+    await user.click(screen.getByRole("button", { name: /join the tuna times/i }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(/valid email/i);
     expect(subscribeToNewsletterMock).not.toHaveBeenCalled();
@@ -72,7 +72,7 @@ describe("NewsletterSignup", () => {
 
     const field = screen.getByLabelText(/email/i);
     await user.type(field, "nope");
-    await user.click(screen.getByRole("button", { name: /^subscribe$/i }));
+    await user.click(screen.getByRole("button", { name: /join the tuna times/i }));
     expect(await screen.findByRole("alert")).toBeInTheDocument();
 
     await user.type(field, "@example.com");
@@ -85,7 +85,7 @@ describe("NewsletterSignup", () => {
     render(<NewsletterSignup />);
 
     await user.type(screen.getByLabelText(/email/i), "reader@example.com");
-    await user.click(screen.getByRole("button", { name: /^subscribe$/i }));
+    await user.click(screen.getByRole("button", { name: /join the tuna times/i }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(/couldn't subscribe/i);
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
@@ -103,9 +103,9 @@ describe("NewsletterSignup", () => {
     render(<NewsletterSignup />);
 
     await user.type(screen.getByLabelText(/email/i), "reader@example.com");
-    await user.click(screen.getByRole("button", { name: /^subscribe$/i }));
+    await user.click(screen.getByRole("button", { name: /join the tuna times/i }));
 
-    const pending = await screen.findByRole("button", { name: /subscribing…/i });
+    const pending = await screen.findByRole("button", { name: /joining…/i });
     expect(pending).toBeDisabled();
 
     release({ saved: true });

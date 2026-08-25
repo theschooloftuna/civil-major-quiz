@@ -8,16 +8,58 @@ vi.mock("@/lib/newsletter/actions", () => ({
 const { default: NewsletterPage, metadata } = await import("./page");
 
 describe("NewsletterPage", () => {
-  test("renders a heading, one paragraph, an email field and a button", () => {
-    const { container } = render(<NewsletterPage />);
+  test("renders the Tuna Times masthead and tagline", () => {
+    render(<NewsletterPage />);
 
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/newsletter/i);
-    expect(container.querySelectorAll("p")).toHaveLength(1);
-    expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /^subscribe$/i })).toBeInTheDocument();
+    expect(screen.getByText(/the school of tuna presents/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Tuna Times");
+    expect(screen.getByText(/still figuring things out/i)).toBeInTheDocument();
   });
 
-  test("carries nothing beyond the pitch - no quiz cross-link, no cadence promise", () => {
+  test("states the launch date", () => {
+    render(<NewsletterPage />);
+
+    expect(screen.getByText(/launching september 1st, 2026/i)).toBeInTheDocument();
+  });
+
+  test("shows the illustration with descriptive alt text", () => {
+    render(<NewsletterPage />);
+
+    const illustration = screen.getByRole("img", { name: /person reading a newspaper/i });
+    expect(illustration).toBeInTheDocument();
+  });
+
+  test("lists every topic the newsletter covers", () => {
+    render(<NewsletterPage />);
+
+    const items = screen.getAllByRole("listitem");
+    expect(items).toHaveLength(7);
+    expect(items[0]).toHaveTextContent(/opportunities around the world/i);
+    expect(items[6]).toHaveTextContent(/learning struggles/i);
+  });
+
+  test("pairs each topic with an icon", () => {
+    const { container } = render(<NewsletterPage />);
+
+    // Phosphor renders an <svg> per topic; the alt-texted illustration is an
+    // <img>, so it can't be inflating this count.
+    expect(container.querySelectorAll("li svg")).toHaveLength(7);
+  });
+
+  test("carries the no-nonsense promise", () => {
+    render(<NewsletterPage />);
+
+    expect(screen.getByText(/nonsense/i)).toBeInTheDocument();
+  });
+
+  test("renders the signup form", () => {
+    render(<NewsletterPage />);
+
+    expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /join the tuna times/i })).toBeInTheDocument();
+  });
+
+  test("still has no quiz cross-link and makes no cadence promise", () => {
     render(<NewsletterPage />);
 
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
@@ -26,6 +68,6 @@ describe("NewsletterPage", () => {
   });
 
   test("sets the page title", () => {
-    expect(metadata.title).toBe("Newsletter | Civil Major Quiz");
+    expect(metadata.title).toBe("Tuna Times | Civil Major Quiz");
   });
 });
