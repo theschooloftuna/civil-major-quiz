@@ -6,62 +6,75 @@
 -- PART A is read-only. PART B mutates inside a transaction and rolls back.
 
 -- ===================== PART A - static, read-only =====================
+-- Every value is cast to text: a UNION ALL needs one type per column, and
+-- these checks are a mix of booleans and counts.
 
-select check_name, expected, actual, (expected = actual) as pass from (
-  select 'rls enabled' as check_name, true as expected,
+select check_name, expected, actual, (expected = actual) as pass
+from (
+  select 'rls enabled' as check_name, 'true' as expected,
          (select relrowsecurity from pg_class
-           where oid = 'public.newsletter_subscribers'::regclass) as actual
+           where oid = 'public.newsletter_subscribers'::regclass)::text as actual
   union all
-  select 'zero policies on the table', 0,
-         (select count(*)::int from pg_policies
-           where schemaname = 'public' and tablename = 'newsletter_subscribers')
+  select 'zero policies on the table', '0',
+         (select count(*) from pg_policies
+           where schemaname = 'public' and tablename = 'newsletter_subscribers')::text
   union all
-  select 'anon has no direct table privileges', 0,
-         (select count(*)::int from information_schema.role_table_grants
-           where grantee = 'anon' and table_name = 'newsletter_subscribers')
+  select 'anon has no direct table privileges', '0',
+         (select count(*) from information_schema.role_table_grants
+           where grantee = 'anon' and table_name = 'newsletter_subscribers')::text
+  -- Supabase grants EXECUTE on new public-schema functions to anon and
+  -- authenticated explicitly, so `revoke ... from public` alone does NOT
+  -- close the helper. Both roles are checked.
   union all
-  select 'helper NOT executable by anon', false,
+  select 'helper NOT executable by anon', 'false',
          has_function_privilege('anon',
-           'public.upsert_newsletter_subscriber(text,text)', 'execute')
+           'public.upsert_newsletter_subscriber(text,text)', 'execute')::text
   union all
-  select 'subscribe_newsletter executable by anon', true,
-         has_function_privilege('anon',
-           'public.subscribe_newsletter(text)', 'execute')
+  select 'helper NOT executable by authenticated', 'false',
+         has_function_privilege('authenticated',
+           'public.upsert_newsletter_subscriber(text,text)', 'execute')::text
   union all
-  select 'unsubscribe_newsletter executable by anon', true,
+  select 'subscribe_newsletter executable by anon', 'true',
          has_function_privilege('anon',
-           'public.unsubscribe_newsletter(uuid)', 'execute')
+           'public.subscribe_newsletter(text)', 'execute')::text
   union all
-  select 'newsletter_token_exists executable by anon', true,
+  select 'unsubscribe_newsletter executable by anon', 'true',
          has_function_privilege('anon',
-           'public.newsletter_token_exists(uuid)', 'execute')
+           'public.unsubscribe_newsletter(uuid)', 'execute')::text
+  union all
+  select 'newsletter_token_exists executable by anon', 'true',
+         has_function_privilege('anon',
+           'public.newsletter_token_exists(uuid)', 'execute')::text
   -- The three attributes a careless `create or replace` silently drops.
   union all
-  select 'subscribe_quiz_result still SECURITY DEFINER', true,
-         (select prosecdef from pg_proc p join pg_namespace n on n.oid = p.pronamespace
-           where n.nspname = 'public' and p.proname = 'subscribe_quiz_result')
+  select 'subscribe_quiz_result still SECURITY DEFINER', 'true',
+         (select prosecdef from pg_proc p
+            join pg_namespace n on n.oid = p.pronamespace
+           where n.nspname = 'public' and p.proname = 'subscribe_quiz_result')::text
   union all
-  select 'subscribe_quiz_result still pins search_path', true,
+  select 'subscribe_quiz_result still pins search_path', 'true',
          (select proconfig @> array['search_path=public'] from pg_proc p
             join pg_namespace n on n.oid = p.pronamespace
-           where n.nspname = 'public' and p.proname = 'subscribe_quiz_result')
+           where n.nspname = 'public' and p.proname = 'subscribe_quiz_result')::text
   union all
-  select 'subscribe_quiz_result still executable by anon', true,
+  select 'subscribe_quiz_result still executable by anon', 'true',
          has_function_privilege('anon',
-           'public.subscribe_quiz_result(uuid,text)', 'execute')
+           'public.subscribe_quiz_result(uuid,text)', 'execute')::text
   -- Backfill landed, and every stored address obeys the normalization rule.
   union all
-  select 'backfill covers every distinct quiz email', true,
+  select 'backfill covers every distinct quiz email', 'true',
          (select count(*) = 0 from (
             select distinct lower(btrim(email)) as e from public.quiz_results
              where email is not null and btrim(email) <> ''
             except
-            select email from public.newsletter_subscribers) missing)
+            select email from public.newsletter_subscribers) missing)::text
   union all
-  select 'all stored emails are normalized', 0,
-         (select count(*)::int from public.newsletter_subscribers
-           where email <> lower(btrim(email)))
-) checks order by pass, check_name;
+  select 'all stored emails are normalized', '0',
+         (select count(*) from public.newsletter_subscribers
+           where email <> lower(btrim(email)))::text
+) checks
+-- Failures (and any NULL, which means the object is missing) sort to the top.
+order by (pass is distinct from true) desc, check_name;
 
 
 -- ===================== PART B - behavioral, rolled back =====================
