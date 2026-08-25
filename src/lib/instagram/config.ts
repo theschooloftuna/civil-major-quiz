@@ -36,6 +36,19 @@ export function readInstagramEnv(name: string): string | undefined {
   return raw ? raw : undefined;
 }
 
+/**
+ * Turns the two-character sequence `\n` into a real newline.
+ *
+ * Env vars are single-line by nature, and the two places this app reads them
+ * from disagree about escapes: dotenv expands `\n` inside a quoted value,
+ * while a hosting platform's env-var UI stores the literal characters. Doing
+ * the expansion here means one single-line value behaves the same locally and
+ * in production, instead of a DM going out with a visible backslash in it.
+ */
+function unescapeNewlines(value: string): string {
+  return value.replace(/\\n/g, "\n");
+}
+
 /** Meta's webhook verification token. Only the GET handshake needs this, so
  * it's read separately - the handshake must work before the send-side vars
  * are filled in. */
@@ -72,7 +85,7 @@ export function getInstagramConfig(): InstagramConfigResult {
       accessToken,
       accountId,
       triggerWord,
-      replyText,
+      replyText: unescapeNewlines(replyText),
       allowSelfComments: readInstagramEnv("IG_ALLOW_SELF_COMMENTS") === "true",
     },
   };

@@ -71,6 +71,30 @@ describe("getInstagramConfig", () => {
     if (!result.ok) expect(result.missing).toEqual(["IG_ACCESS_TOKEN"]);
   });
 
+  it("expands a literal \\n in the reply text into a real newline", () => {
+    stubAll({ IG_REPLY_TEXT: "line one\\n\\nline three" });
+    const result = getInstagramConfig();
+
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.config.replyText).toBe("line one\n\nline three");
+  });
+
+  it("leaves a real newline in the reply text alone", () => {
+    stubAll({ IG_REPLY_TEXT: "line one\n\nline three" });
+    const result = getInstagramConfig();
+
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.config.replyText).toBe("line one\n\nline three");
+  });
+
+  it("keeps emoji and em dashes in the reply text intact", () => {
+    stubAll({ IG_REPLY_TEXT: "Hey! \u{1F44B} USA, UAE \u2014 and more" });
+    const result = getInstagramConfig();
+
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.config.replyText).toBe("Hey! \u{1F44B} USA, UAE \u2014 and more");
+  });
+
   it("enables self-comments only on the exact string \"true\"", () => {
     stubAll({ IG_ALLOW_SELF_COMMENTS: "true" });
     const enabled = getInstagramConfig();
