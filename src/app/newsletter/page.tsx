@@ -11,7 +11,6 @@ import {
 } from "@phosphor-icons/react/ssr";
 
 import { NewsletterSignup } from "@/components/newsletter/newsletter-signup";
-import { Alert, AlertDescription } from "@/components/theme-custom/alert";
 
 export const metadata: Metadata = {
   title: "Tuna Times | Civil Major Quiz",
@@ -36,7 +35,16 @@ const TOPICS = [
 
 export default function NewsletterPage() {
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-col gap-10 px-4 py-16">
+    <main className="mx-auto flex w-full max-w-2xl flex-col gap-8 px-4 py-16">
+      <Image
+        src="/newsletter.png"
+        alt="Line drawing of a person reading a newspaper"
+        width={416}
+        height={493}
+        priority
+        className="w-44 self-center"
+      />
+
       <header className="flex flex-col gap-4">
         <p className="font-mono text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           The School of Tuna presents
@@ -50,47 +58,28 @@ export default function NewsletterPage() {
         </span>
       </header>
 
-      <div className="flex flex-col-reverse items-center gap-6 sm:flex-row sm:items-start">
-        <p className="text-lg text-foreground">
-          Every issue, I&apos;ll share what I&apos;m learning, what I&apos;m researching, and what
-          I wish I knew earlier about building a career in civil engineering.
-        </p>
-        <Image
-          src="/newsletter.png"
-          alt="Line drawing of a person reading a newspaper"
-          width={416}
-          height={493}
-          priority
-          className="w-40 shrink-0 sm:w-44"
-        />
-      </div>
+      <p className="text-lg text-foreground">
+        Every issue, I&apos;ll share what I&apos;m learning, what I&apos;m researching, and what I
+        wish I knew earlier about building a career in civil engineering.
+      </p>
 
-      <section className="flex flex-col gap-4">
+      <NewsletterSignup />
+
+      {/* Deliberately visible rather than behind a tooltip: this list is what
+          sells the newsletter, and hover doesn't exist on touch devices. It is
+          de-emphasized instead — small text, below the call to action. */}
+      <section className="flex flex-col gap-3 border-t border-vellum pt-6">
         <h2 className="font-mono text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Expect things like
         </h2>
-        <ul className="flex flex-col gap-3">
+        <ul className="grid gap-2 sm:grid-cols-2">
           {TOPICS.map(({ Icon, text }) => (
-            <li key={text} className="flex items-start gap-3">
-              <Icon weight="bold" aria-hidden className="mt-1 size-5 shrink-0 text-green" />
-              <span className="text-lg text-foreground">{text}</span>
+            <li key={text} className="flex items-start gap-2">
+              <Icon weight="bold" aria-hidden className="mt-0.5 size-4 shrink-0 text-green" />
+              <span className="text-sm text-muted-foreground">{text}</span>
             </li>
           ))}
         </ul>
-      </section>
-
-      <Alert variant="notice">
-        <AlertDescription>
-          No &ldquo;become a successful engineer in 5 steps&rdquo; nonsense. Just useful things
-          I&apos;m discovering as I figure it out too.
-        </AlertDescription>
-      </Alert>
-
-      <section className="flex flex-col gap-4">
-        <p className="text-lg text-foreground">
-          Join the list — first issue arrives September 1.
-        </p>
-        <NewsletterSignup />
       </section>
     </main>
   );

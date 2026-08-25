@@ -46,10 +46,33 @@ describe("NewsletterPage", () => {
     expect(container.querySelectorAll("li svg")).toHaveLength(7);
   });
 
-  test("carries the no-nonsense promise", () => {
+  test("no longer carries the 5-steps line", () => {
     render(<NewsletterPage />);
 
-    expect(screen.getByText(/nonsense/i)).toBeInTheDocument();
+    expect(screen.queryByText(/nonsense/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/5 steps/i)).not.toBeInTheDocument();
+  });
+
+  test("leads with the illustration, above the masthead", () => {
+    render(<NewsletterPage />);
+
+    const illustration = screen.getByRole("img", { name: /person reading a newspaper/i });
+    const heading = screen.getByRole("heading", { level: 1 });
+
+    expect(
+      illustration.compareDocumentPosition(heading) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+  });
+
+  test("puts the signup form ahead of the topic list", () => {
+    render(<NewsletterPage />);
+
+    const button = screen.getByRole("button", { name: /join the tuna times/i });
+    const topics = screen.getByText(/expect things like/i);
+
+    expect(
+      button.compareDocumentPosition(topics) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
   });
 
   test("renders the signup form", () => {
