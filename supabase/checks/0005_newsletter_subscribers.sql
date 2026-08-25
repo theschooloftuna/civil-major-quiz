@@ -73,8 +73,11 @@ from (
          (select count(*) from public.newsletter_subscribers
            where email <> lower(btrim(email)))::text
 ) checks
--- Failures (and any NULL, which means the object is missing) sort to the top.
-order by (pass is distinct from true) desc, check_name;
+-- Positional sort keys: column 4 is `pass`, column 1 is `check_name`.
+-- ORDER BY can name an output alias directly, but not inside an expression -
+-- there the identifier resolves against the FROM clause, which has no `pass`.
+-- Ascending puts false (failures) first. A NULL means the object is missing.
+order by 4, 1;
 
 
 -- ===================== PART B - behavioral, rolled back =====================
